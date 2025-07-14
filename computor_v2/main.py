@@ -1,6 +1,5 @@
 import argparse
 from computorv2 import ComputorV2
-import readline
 
 
 def parse_args() -> argparse.Namespace:
