@@ -6,6 +6,8 @@ from computor_v2.parsing.AST import (
     BinaryOperationNode,
     FunctionCallNode,
     MatrixNode,
+    Equality,
+    Unequality,
 )
 from computor_v2.parsing.parser import parser
 
@@ -20,12 +22,12 @@ test_data = [
     ("5 % 2", BinaryOperationNode(NumberNode(5.0), "%", NumberNode(2.0))),
     ("9 // 4", BinaryOperationNode(NumberNode(9.0), "//", NumberNode(4.0))),
     # Comparison Operators
-    ("1 == 2", BinaryOperationNode(NumberNode(1.0), "==", NumberNode(2.0))),
-    ("3 != 4", BinaryOperationNode(NumberNode(3.0), "!=", NumberNode(4.0))),
-    ("2 > 1", BinaryOperationNode(NumberNode(2.0), ">", NumberNode(1.0))),
-    ("2 >= 2", BinaryOperationNode(NumberNode(2.0), ">=", NumberNode(2.0))),
-    ("1 < 2", BinaryOperationNode(NumberNode(1.0), "<", NumberNode(2.0))),
-    ("2 <= 3", BinaryOperationNode(NumberNode(2.0), "<=", NumberNode(3.0))),
+    ("1 == 2", Unequality(NumberNode(1.0), "==", NumberNode(2.0))),
+    ("3 != 4", Unequality(NumberNode(3.0), "!=", NumberNode(4.0))),
+    ("2 > 1", Unequality(NumberNode(2.0), ">", NumberNode(1.0))),
+    ("2 >= 2", Unequality(NumberNode(2.0), ">=", NumberNode(2.0))),
+    ("1 < 2", Unequality(NumberNode(1.0), "<", NumberNode(2.0))),
+    ("2 <= 3", Unequality(NumberNode(2.0), "<=", NumberNode(3.0))),
     # Unary minus
     ("-3", BinaryOperationNode(NumberNode(-1.0), "*", NumberNode(3.0))),
     # Implicit multiplication
@@ -43,14 +45,12 @@ test_data = [
         FunctionCallNode("max", [NumberNode(1.0), NumberNode(2.0), NumberNode(3.0)]),
     ),
     # Assignment
-    ("a = 4", TokenNode("a", NumberNode(4.0))),
+    ("a = 4", Equality("a", NumberNode(4))),
     # Matrix
     (
         "[[1, 2]; [3, 4]]",
-        TokenNode(
-            MatrixNode(
-                [[NumberNode(1.0), NumberNode(2.0)], [NumberNode(3.0), NumberNode(4.0)]]
-            )
+        MatrixNode(
+            [[NumberNode(1.0), NumberNode(2.0)], [NumberNode(3.0), NumberNode(4.0)]]
         ),
     ),
     # Basic expressions

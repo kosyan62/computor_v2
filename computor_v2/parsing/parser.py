@@ -9,6 +9,7 @@ from .AST import (
     Unequality,
 )
 from ply import yacc
+from .lexer import tokens  # noqa F401
 
 # Parsing rules
 precedence = (
@@ -20,14 +21,12 @@ precedence = (
     ("left", "GT", "GTE", "LT", "LTE", "EQ", "NEQ"),
 )
 
-start = "statement"
-
 
 def p_statement_assignment(p):
     """statement : assignment
     | function_definition
+    | expression
     """
-    # Maybe I should add expression, but will see
     p[0] = p[1]
 
 
@@ -148,4 +147,4 @@ def p_error(p):
         print("Syntax error at EOF")
 
 
-parser = yacc.yacc()
+parser = yacc.yacc(start="statement")

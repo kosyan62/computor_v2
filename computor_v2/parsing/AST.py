@@ -5,6 +5,7 @@ from abc import ABC
 class Node(ABC):
     @abc.abstractmethod
     def __init__(self, name, value, children=None):
+        self.name = name
         self.value = value
         self.children = children if children else []
 
@@ -108,10 +109,24 @@ class MatrixNode(Node):
 
 class FunctionDefinition:
     def __init__(self, name, args, expression):
+        if not isinstance(args, list):
+            args = [args]
         self.name = name
         self.args_count = len(args)
         self.args = args
         self.expression = expression
+
+    def __repr__(self):
+        return f"FunctionDefinition({self.name}({self.args_count} args): {self.expression})"
+
+    def __eq__(self, other):
+        if isinstance(other, FunctionDefinition):
+            return (
+                self.name == other.name
+                and self.args_count == other.args_count
+                and self.expression == other.expression
+                and all(a == b for a, b in zip(self.args, other.args))
+            )
 
 
 class Equality:
@@ -119,8 +134,29 @@ class Equality:
         self.left = left
         self.right = right
 
+    def __repr__(self):
+        return f"({self.left} = {self.right})"
+
+    def __eq__(self, other):
+        if isinstance(other, Equality):
+            return self.left == other.left and self.right == other.right
+        return False
+
 
 class Unequality:
     def __init__(self, left, sign, right):
         self.left = left
+        self.sign = sign
         self.right = right
+
+    def __repr__(self):
+        return f"({self.left} {self.sign} {self.right})"
+
+    def __eq__(self, other):
+        if isinstance(other, Unequality):
+            return (
+                self.left == other.left
+                and self.sign == other.sign
+                and self.right == other.right
+            )
+        return False

@@ -48,7 +48,7 @@ valid_test_data = [
     (
         "f(x) = x + 1",
         FunctionDefinition(
-            "f", 1, BinaryOperationNode(TokenNode("x"), "+", NumberNode(1.0))
+            "f", [TokenNode("x")], BinaryOperationNode(TokenNode("x"), "+", NumberNode(1.0))
         ),
     ),
     # Function with multiple arguments
@@ -56,7 +56,7 @@ valid_test_data = [
         "max(a, b, c) = a + b + c",
         FunctionDefinition(
             "max",
-            3,
+            [TokenNode("a"), TokenNode("b"), TokenNode("c")],
             BinaryOperationNode(
                 BinaryOperationNode(TokenNode("a"), "+", TokenNode("b")),
                 "+",
@@ -69,7 +69,7 @@ valid_test_data = [
         "m() = [[1, 2]; [3, 4]]",
         FunctionDefinition(
             "m",
-            0,
+            [],
             TokenNode(
                 MatrixNode(
                     [
