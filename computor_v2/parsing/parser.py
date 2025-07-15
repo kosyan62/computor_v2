@@ -40,7 +40,7 @@ def p_function_definition(p):
     elif len(p) == 6:
         p[0] = FunctionDefinition(p[1], [], p[5])
     else:
-        raise SyntaxError(f"Invalid function definition")
+        raise SyntaxError("Invalid function definition")
 
 
 def p_expressions_list_1(p):
@@ -63,7 +63,7 @@ def p_matrix_row(p):
     elif len(p) == 3:
         p[0] = []
     else:
-        raise SyntaxError(f"Invalid matrix row")
+        raise SyntaxError("Invalid matrix row")
 
 
 def p_matrix_column_1(p):
@@ -96,7 +96,7 @@ def p_function_call(p):
     elif len(p) == 4:
         p[0] = FunctionCallNode(p[1], [])
     else:
-        raise SyntaxError(f"Invalid function call")
+        raise SyntaxError("Invalid function call")
 
 
 def p_expression_unequality(p):
