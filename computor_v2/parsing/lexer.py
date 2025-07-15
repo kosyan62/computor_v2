@@ -34,7 +34,6 @@ t_PLUS = r"\+"
 t_MINUS = r"\-"
 t_MULTIPLY = r"\*"
 t_DIVIDE = r"\/"
-t_POWER = r"\^|\*\*"
 t_MODULO = r"\%"
 t_FLOORDIV = r"\/\/"
 
@@ -59,6 +58,11 @@ t_ASSIGNMENT = r"\="
 
 t_ignore = " \t"
 
+
+def t_POWER(t):
+    r"""\^|\*\*"""
+    t.value = "^"
+    return t
 
 def t_NUMBER(t):
     r"""(\d+(\.\d+)?)"""

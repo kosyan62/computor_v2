@@ -1,13 +1,6 @@
 import pytest
 
-from computor_v2.parsing.AST import (
-    FunctionDefinition,
-    FunctionCallNode,
-    BinaryOperationNode,
-    NumberNode,
-    TokenNode,
-    MatrixNode,
-)
+from computor_v2.parsing.AST import (FunctionDefinition, FunctionCallNode, BinaryOperationNode, NumberNode, TokenNode, MatrixNode, Unequality, )
 from computor_v2.parsing.parser import parser
 
 valid_test_data = [
@@ -53,9 +46,9 @@ valid_test_data = [
     ),
     # Function with multiple arguments
     (
-        "max(a, b, c) = a + b + c",
+        "sum(a, b, c) = a + b + c",
         FunctionDefinition(
-            "max",
+            "sum",
             [TokenNode("a"), TokenNode("b"), TokenNode("c")],
             BinaryOperationNode(
                 BinaryOperationNode(TokenNode("a"), "+", TokenNode("b")),
@@ -70,7 +63,6 @@ valid_test_data = [
         FunctionDefinition(
             "m",
             [],
-            TokenNode(
                 MatrixNode(
                     [
                         [NumberNode(1.0), NumberNode(2.0)],
@@ -78,14 +70,13 @@ valid_test_data = [
                     ]
                 )
             ),
-        ),
     ),
     # Function with nested function call
     (
         "f(x) = g(x) + 1",
         FunctionDefinition(
             "f",
-            1,
+            [TokenNode("x")],
             BinaryOperationNode(
                 FunctionCallNode("g", [TokenNode("x")]), "+", NumberNode(1.0)
             ),
@@ -112,8 +103,8 @@ valid_test_data = [
     # Chained comparisons
     (
         "1 < 2 <= 3",
-        BinaryOperationNode(
-            BinaryOperationNode(NumberNode(1.0), "<", NumberNode(2.0)),
+        Unequality(
+            Unequality(NumberNode(1.0), "<", NumberNode(2.0)),
             "<=",
             NumberNode(3.0),
         ),
@@ -132,7 +123,6 @@ invalid_inputs = [
     "(",
     "f(x",
     "[1, 2]",
-    "1 ** 2",
     "f(1, , 2)",
 ]
 

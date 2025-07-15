@@ -19,6 +19,7 @@ test_data = [
     ("4 * 2", BinaryOperationNode(NumberNode(4.0), "*", NumberNode(2.0))),
     ("8 / 4", BinaryOperationNode(NumberNode(8.0), "/", NumberNode(4.0))),
     ("2 ^ 3", BinaryOperationNode(NumberNode(2.0), "^", NumberNode(3.0))),
+    ("2 ** 3", BinaryOperationNode(NumberNode(2.0), "^", NumberNode(3.0))),
     ("5 % 2", BinaryOperationNode(NumberNode(5.0), "%", NumberNode(2.0))),
     ("9 // 4", BinaryOperationNode(NumberNode(9.0), "//", NumberNode(4.0))),
     # Comparison Operators

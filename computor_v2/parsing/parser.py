@@ -31,8 +31,16 @@ def p_statement_assignment(p):
 
 
 def p_function_definition(p):
-    """function_definition : ID LPAREN expressions_list RPAREN ASSIGNMENT expression"""
-    p[0] = FunctionDefinition(p[1], p[3], p[6])
+    """function_definition : ID LPAREN expressions_list RPAREN ASSIGNMENT expression
+    | ID LPAREN RPAREN ASSIGNMENT expression
+    """
+
+    if len(p) == 7:
+        p[0] = FunctionDefinition(p[1], p[3], p[6])
+    elif len(p) == 6:
+        p[0] = FunctionDefinition(p[1], [], p[5])
+    else:
+        raise SyntaxError(f"Invalid function definition")
 
 
 def p_expressions_list_1(p):
@@ -142,9 +150,9 @@ def p_expression_implicit_multiply_number_ID(p):
 
 def p_error(p):
     if p:
-        print(f"Syntax error at '{p.value}'")
+        raise SyntaxError(f"Syntax error at '{p.value}'")
     else:
-        print("Syntax error at EOF")
+        raise SyntaxError("Syntax error at EOF")
 
 
 parser = yacc.yacc(start="statement")
