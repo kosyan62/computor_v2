@@ -172,7 +172,7 @@ def p_error(p):
         message = f"Syntax error at '{p.value}'"
         raise SyntaxError(message)
     else:
-        message = f"Syntax error at EOF"
+        message = "Syntax error at EOF"
         raise SyntaxError(message)
 
 

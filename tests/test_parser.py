@@ -96,7 +96,12 @@ operations_test_data = [
     ("f()", FunctionCallNode("f", [])),
     ("f(1)", FunctionCallNode("f", [NumberNode(1.0)])),
     ("f((1))", FunctionCallNode("f", [NumberNode(1.0)])),
-    ("f(-(1))", FunctionCallNode("f", [BinaryOperationNode(NumberNode(-1.0), "*", NumberNode(1.0))])),
+    (
+        "f(-(1))",
+        FunctionCallNode(
+            "f", [BinaryOperationNode(NumberNode(-1.0), "*", NumberNode(1.0))]
+        ),
+    ),
     (
         "max(1, 2, 3)",
         FunctionCallNode("max", [NumberNode(1.0), NumberNode(2.0), NumberNode(3.0)]),
@@ -179,6 +184,14 @@ operations_test_data = [
             ),
         ),
     ),
+    (
+        "2f() + 3x",
+        BinaryOperationNode(
+            BinaryOperationNode(NumberNode(2.0), "*", FunctionCallNode("f", [])),
+            "+",
+            BinaryOperationNode(NumberNode(3.0), "*", TokenNode("x")),
+        ),
+    ),
     # Unary minus
     ("-3", BinaryOperationNode(NumberNode(-1.0), "*", NumberNode(3.0))),
     (
@@ -195,31 +208,110 @@ operations_test_data = [
             BinaryOperationNode(NumberNode(1.0), "+", NumberNode(2.0)),
         ),
     ),
-    ("--3", BinaryOperationNode(NumberNode(-1), "*", BinaryOperationNode(NumberNode(-1.0), "*", NumberNode(3.0)))),
+    (
+        "--3",
+        BinaryOperationNode(
+            NumberNode(-1),
+            "*",
+            BinaryOperationNode(NumberNode(-1.0), "*", NumberNode(3.0)),
+        ),
+    ),
+    (
+        "---3",
+        BinaryOperationNode(
+            NumberNode(-1.0),
+            "*",
+            BinaryOperationNode(
+                NumberNode(-1.0),
+                "*",
+                BinaryOperationNode(NumberNode(-1.0), "*", NumberNode(3.0)),
+            ),
+        ),
+    ),
+    (
+        "-2x",
+        BinaryOperationNode(
+            NumberNode(-1.0),
+            "*",
+            BinaryOperationNode(NumberNode(2.0), "*", TokenNode("x")),
+        ),
+    ),
     # Simple assignment
     ("a = 4", Equality(TokenNode("a"), NumberNode(4))),  # Matrix
-    ("a = 1 + x", Equality(TokenNode("a"), BinaryOperationNode(NumberNode(1.0), "+", TokenNode("x")))),
+    (
+        "a = 1 + x",
+        Equality(
+            TokenNode("a"), BinaryOperationNode(NumberNode(1.0), "+", TokenNode("x"))
+        ),
+    ),
     # Some edge case tests
     ("((((((1 + 2))))))", BinaryOperationNode(NumberNode(1.0), "+", NumberNode(2))),
 ]
 
 operation_order_test_data = [
     # Basic precedence
-    ("1 + 2 * 3", BinaryOperationNode(NumberNode(1), "+", BinaryOperationNode(NumberNode(2), "*", NumberNode(3)))),
-    ("(1 + 2) * 3", BinaryOperationNode(BinaryOperationNode(NumberNode(1), "+", NumberNode(2)), "*", NumberNode(3))),
-    ("2 ^ 3 * 4", BinaryOperationNode(BinaryOperationNode(NumberNode(2), "^", NumberNode(3)), "*", NumberNode(4))),
-    ("-2 ^ 3", BinaryOperationNode(NumberNode(-1.0), "*", BinaryOperationNode(NumberNode(2), "^", NumberNode(3)))),
-    ("4 + 2 ^ 2 * 3", BinaryOperationNode(NumberNode(4), "+",
+    (
+        "1 + 2 * 3",
         BinaryOperationNode(
-            BinaryOperationNode(NumberNode(2), "^", NumberNode(2)),
+            NumberNode(1), "+", BinaryOperationNode(NumberNode(2), "*", NumberNode(3))
+        ),
+    ),
+    (
+        "(1 + 2) * 3",
+        BinaryOperationNode(
+            BinaryOperationNode(NumberNode(1), "+", NumberNode(2)), "*", NumberNode(3)
+        ),
+    ),
+    (
+        "2 ^ 3 * 4",
+        BinaryOperationNode(
+            BinaryOperationNode(NumberNode(2), "^", NumberNode(3)), "*", NumberNode(4)
+        ),
+    ),
+    (
+        "-2 ^ 3",
+        BinaryOperationNode(
+            NumberNode(-1.0),
             "*",
-            NumberNode(3)
-        )
-    )),
-    ("3 * 2 + 1", BinaryOperationNode(BinaryOperationNode(NumberNode(3), "*", NumberNode(2)), "+", NumberNode(1))),
-    ("2 + 3 - 1", BinaryOperationNode(BinaryOperationNode(NumberNode(2), "+", NumberNode(3)), "-", NumberNode(1))),
-    ("8 / 4 / 2", BinaryOperationNode(BinaryOperationNode(NumberNode(8), "/", NumberNode(4)), "/", NumberNode(2))),
-    ("2 ^ 3 ^ 2", BinaryOperationNode(NumberNode(2), "^", BinaryOperationNode(NumberNode(3), "^", NumberNode(2)))),
+            BinaryOperationNode(NumberNode(2), "^", NumberNode(3)),
+        ),
+    ),
+    (
+        "4 + 2 ^ 2 * 3",
+        BinaryOperationNode(
+            NumberNode(4),
+            "+",
+            BinaryOperationNode(
+                BinaryOperationNode(NumberNode(2), "^", NumberNode(2)),
+                "*",
+                NumberNode(3),
+            ),
+        ),
+    ),
+    (
+        "3 * 2 + 1",
+        BinaryOperationNode(
+            BinaryOperationNode(NumberNode(3), "*", NumberNode(2)), "+", NumberNode(1)
+        ),
+    ),
+    (
+        "2 + 3 - 1",
+        BinaryOperationNode(
+            BinaryOperationNode(NumberNode(2), "+", NumberNode(3)), "-", NumberNode(1)
+        ),
+    ),
+    (
+        "8 / 4 / 2",
+        BinaryOperationNode(
+            BinaryOperationNode(NumberNode(8), "/", NumberNode(4)), "/", NumberNode(2)
+        ),
+    ),
+    (
+        "2 ^ 3 ^ 2",
+        BinaryOperationNode(
+            NumberNode(2), "^", BinaryOperationNode(NumberNode(3), "^", NumberNode(2))
+        ),
+    ),
 ]
 
 

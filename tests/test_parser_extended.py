@@ -109,11 +109,19 @@ valid_test_data = [
             [[NumberNode(1.0), NumberNode(2.0)], [NumberNode(3.0), NumberNode(4.0)]]
         ),
     ),
-    ("f(x * 2 + 1)", FunctionCallNode("f",
-        [BinaryOperationNode(
-            BinaryOperationNode(
-                TokenNode("x"), "*", NumberNode(2.0)), "+",
-                                                 NumberNode(1.0))]))
+    (
+        "f(x * 2 + 1)",
+        FunctionCallNode(
+            "f",
+            [
+                BinaryOperationNode(
+                    BinaryOperationNode(TokenNode("x"), "*", NumberNode(2.0)),
+                    "+",
+                    NumberNode(1.0),
+                )
+            ],
+        ),
+    ),
 ]
 
 
@@ -124,9 +132,11 @@ def test_valid_parse(test_input, expected):
 
 
 invalid_inputs = [
-    "1 +",
+    "1 2 31 +",
     "(",
-    "f(x",
+    "*",
+    "=",
+    ")f(x",
     "[1, 2]",
     "f(1, , 2)",
     "f(x) =",
@@ -144,8 +154,12 @@ invalid_inputs = [
     "f(",
     "[[1,2],[3,4]",
     "[[1,2][3,4]]",
-    "x = ",
-    "= 42",
+    "[[1,2];]",
+    "[[1,,2]]",
+    "([[1 2]])",
+    "[[1,2] [3,4]]x = ",
+    "x = = 1",
+    "x == = 1= 42",
     "f(x,)",
     "1 + * 2",
     "2 **",
@@ -154,6 +168,8 @@ invalid_inputs = [
     "2(x)",
     "f(())",
     "max((1, 2, 3))",
+    "f(x=1)",
+    "f,f(,)f(1 2)",
 ]
 
 
