@@ -85,10 +85,10 @@ class FunctionCallNode(Node):
     def __eq__(self, other):
         if isinstance(other, FunctionCallNode):
             return (
-                    self.value == other.value
-                    and len(self.args) == len(other.args)
-                    and all(a == b for a, b in zip(self.args, other.args))
-                    )
+                self.value == other.value
+                and len(self.args) == len(other.args)
+                and all(a == b for a, b in zip(self.args, other.args))
+            )
         return False
 
 

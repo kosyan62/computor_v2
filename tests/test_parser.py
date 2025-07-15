@@ -1,14 +1,6 @@
 import pytest
 
-from computor_v2.parsing.AST import (
-    TokenNode,
-    NumberNode,
-    BinaryOperationNode,
-    FunctionCallNode,
-    MatrixNode,
-    Equality,
-    Unequality,
-)
+from computor_v2.parsing.AST import (TokenNode, NumberNode, BinaryOperationNode, FunctionCallNode, MatrixNode, Equality, Unequality, FunctionDefinition, )
 from computor_v2.parsing.parser import parser
 
 test_data = [
@@ -66,6 +58,11 @@ test_data = [
             NumberNode(2), "*", FunctionCallNode("f", [TokenNode("x")])
         ),
     ),
+    # New edge case tests
+    ("f()", FunctionCallNode("f", [])),
+    ("f() = 42", FunctionDefinition("f", [], NumberNode(42.0))),
+    ("[[]]", MatrixNode([[]])),
+    ("[[]; [1, 2]]", MatrixNode([[], [NumberNode(1.0), NumberNode(2.0)]])),
 ]
 
 

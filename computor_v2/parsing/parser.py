@@ -55,8 +55,15 @@ def p_expressions_list_2(p):
 
 
 def p_matrix_row(p):
-    """matrix_row : LSQBRACKET expressions_list RSQBRACKET"""
-    p[0] = p[2]
+    """matrix_row : LSQBRACKET expressions_list RSQBRACKET
+    | LSQBRACKET RSQBRACKET
+    """
+    if len(p) == 4:
+        p[0] = p[2]
+    elif len(p) == 3:
+        p[0] = []
+    else:
+        raise SyntaxError(f"Invalid matrix row")
 
 
 def p_matrix_column_1(p):
@@ -81,8 +88,15 @@ def p_assignment(p):
 
 
 def p_function_call(p):
-    """function_call : ID LPAREN expressions_list RPAREN"""
-    p[0] = FunctionCallNode(p[1], p[3])
+    """function_call : ID LPAREN expressions_list RPAREN
+    | ID LPAREN RPAREN
+    """
+    if len(p) == 5:
+        p[0] = FunctionCallNode(p[1], p[3])
+    elif len(p) == 4:
+        p[0] = FunctionCallNode(p[1], [])
+    else:
+        raise SyntaxError(f"Invalid function call")
 
 
 def p_expression_unequality(p):
@@ -138,7 +152,7 @@ def p_expression_group(p):
     p[0] = p[2]
 
 
-def p_expression_implicit_multiply_number_ID(p):
+def p_expression_implicit_multiply(p):
     """expression : NUMBER ID
     | NUMBER function_call
     | NUMBER matrix"""
