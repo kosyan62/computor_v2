@@ -40,6 +40,27 @@ class Node(ABC):
             child.print_tree(indent + 1)
 
 
+class RootNode(Node):
+    name = "Root"
+
+    def __init__(self, left, operation, right):
+        self.left = left
+        self.operation = operation
+        self.right = right
+
+    def __repr__(self):
+        return f"Root({self.left} {self.operation} {self.right})"
+
+    def __eq__(self, other):
+        return False
+
+    def print_tree(self, indent=0):
+        # print tree for left and for right
+        print("Left part: ")
+        self.left.print_tree(indent)
+        print("Right part after operation " + self.operation + ": ")
+        self.right.print_tree(indent)
+
 class BinaryOperationNode(Node):
     name = "BinaryOperation"
 
@@ -131,7 +152,7 @@ class MatrixNode(Node):
         return False
 
 
-class FunctionDefinition:
+class FunctionDefinition(RootNode):
     def __init__(self, name, args, expression):
         if isinstance(args, TokenNode):
             args = [args]
@@ -144,6 +165,7 @@ class FunctionDefinition:
         self.args_count = len(args)
         self.args = args
         self.expression = expression
+        super().__init__(f"{self.name}({','.join([a.value for a in args])})", "def", expression)
 
     def __repr__(self):
         return f"FunctionDefinition({self.name}({self.args_count} args): {self.expression})"
@@ -159,10 +181,13 @@ class FunctionDefinition:
         return False
 
 
-class Equality:
+class Equality(RootNode):
+    operation = "="
+
     def __init__(self, left, right):
         self.left = left
         self.right = right
+        super().__init__(left, self.operation, right)
 
     def __repr__(self):
         return f"Equality({self.left} = {self.right})"
@@ -173,20 +198,21 @@ class Equality:
         return False
 
 
-class Unequality:
-    def __init__(self, left, sign, right):
+class Unequality(RootNode):
+    def __init__(self, left, operator, right):
         self.left = left
-        self.sign = sign
+        self.operator = operator
         self.right = right
+        super().__init__(left, operator, right)
 
     def __repr__(self):
-        return f"Unequality({self.left} {self.sign} {self.right})"
+        return f"Unequality({self.left} {self.operator} {self.right})"
 
     def __eq__(self, other):
         if isinstance(other, Unequality):
             return (
-                self.left == other.left
-                and self.sign == other.sign
-                and self.right == other.right
+                    self.left == other.left
+                    and self.operator == other.operator
+                    and self.right == other.right
             )
         return False

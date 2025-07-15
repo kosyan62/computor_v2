@@ -166,32 +166,6 @@ operations_test_data = [
             BinaryOperationNode(NumberNode(2.0), "*", TokenNode("x")),
         ),
     ),
-    # Implicit multiplication
-    ("2x", BinaryOperationNode(NumberNode(2.0), "*", TokenNode("x"))),
-    (
-        "2f(x)",
-        BinaryOperationNode(
-            NumberNode(2.0), "*", FunctionCallNode("f", [TokenNode("x")])
-        ),
-    ),
-    (
-        "2[[1, 2];[3, 4]]",
-        BinaryOperationNode(
-            NumberNode(2.0),
-            "*",
-            MatrixNode(
-                [[NumberNode(1.0), NumberNode(2.0)], [NumberNode(3.0), NumberNode(4.0)]]
-            ),
-        ),
-    ),
-    (
-        "2f() + 3x",
-        BinaryOperationNode(
-            BinaryOperationNode(NumberNode(2.0), "*", FunctionCallNode("f", [])),
-            "+",
-            BinaryOperationNode(NumberNode(3.0), "*", TokenNode("x")),
-        ),
-    ),
     # Unary minus
     ("-3", BinaryOperationNode(NumberNode(-1.0), "*", NumberNode(3.0))),
     (
@@ -226,14 +200,6 @@ operations_test_data = [
                 "*",
                 BinaryOperationNode(NumberNode(-1.0), "*", NumberNode(3.0)),
             ),
-        ),
-    ),
-    (
-        "-2x",
-        BinaryOperationNode(
-            NumberNode(-1.0),
-            "*",
-            BinaryOperationNode(NumberNode(2.0), "*", TokenNode("x")),
         ),
     ),
     # Simple assignment
@@ -314,7 +280,6 @@ operation_order_test_data = [
     ),
 ]
 
-
 @pytest.mark.parametrize("test_input,expected", basic_types_test_data)
 def test_basic_types(test_input, expected):
     result = parser.parse(test_input)
@@ -331,3 +296,21 @@ def test_operations(test_input, expected):
 def test_operations_order(test_input, expected):
     result = parser.parse(test_input)
     assert result == expected
+
+
+def test_polynomial():
+    ax_squared = parser.parse("2*x^2")
+    assert ax_squared == BinaryOperationNode(
+            NumberNode(2.0), "*", BinaryOperationNode(TokenNode("x"), "^", NumberNode(2.0))
+    )
+    bx = parser.parse("3*x")
+    assert bx == BinaryOperationNode(
+        NumberNode(3.0), "*", TokenNode("x")
+    )
+    c = parser.parse("4")
+    assert c == NumberNode(4.0)
+    ax_squared_plus_bx_minus_c = parser.parse("2*x^2 + 3*x - 4")
+    assert ax_squared_plus_bx_minus_c == BinaryOperationNode(
+        BinaryOperationNode(ax_squared, "+", bx), "-", c)
+    polynomial_expression = parser.parse("2*x^2 + 3*x - 4 = 0")
+    assert polynomial_expression == Equality(ax_squared_plus_bx_minus_c, NumberNode(0.0))

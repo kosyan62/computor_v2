@@ -13,12 +13,12 @@ from .lexer import tokens  # noqa F401
 
 # Parsing rules
 precedence = (
+    ("nonassoc", "GT", "GTE", "LT", "LTE", "EQ", "NEQ"),
     ("left", "MODULO"),
     ("left", "PLUS", "MINUS"),
     ("left", "MULTIPLY", "DIVIDE"),
     ("right", "UMINUS"),
     ("right", "POWER"),
-    ("left", "GT", "GTE", "LT", "LTE", "EQ", "NEQ"),
 )
 
 start = "statement"
@@ -100,23 +100,19 @@ def p_matrix(p):
 
 
 def p_equality(p):
-    """equality : ID ASSIGNMENT expression"""
-    p[0] = Equality(TokenNode(p[1]), p[3])
+    """equality : ID ASSIGNMENT expression
+    | expression ASSIGNMENT expression"""
+    left, right = p[1], p[3]
+    if isinstance(left, str):
+        left = TokenNode(left)
+    if isinstance(right, str):
+        right = TokenNode(right)
+    p[0] = Equality(left, right)
 
 
 def p_expression_function_call(p):
     """expression : function_call"""
     p[0] = p[1]
-
-
-def p_expression_implicit_multiply(p):
-    """expression : NUMBER ID
-    | NUMBER function_call
-    | NUMBER matrix"""
-    if p.slice[2].type == "ID":
-        p[0] = BinaryOperationNode(NumberNode(p[1]), "*", TokenNode(p[2]))
-    else:
-        p[0] = BinaryOperationNode(NumberNode(p[1]), "*", p[2])
 
 
 def p_expression_unequality(p):

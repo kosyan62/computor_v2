@@ -6,6 +6,9 @@ class ComputorV2:
         self.parser = parser
 
     def add_input(self, text):
-        result = parser.parse(text)
-        if result:
-            result.print_tree()
+        try:
+            result = parser.parse(text)
+            if result:
+                result.print_tree()
+        except (SyntaxError, ValueError) as e:
+            print(f"Error: {e}")
