@@ -16,17 +16,19 @@ precedence = (
     ("left", "MODULO"),
     ("left", "PLUS", "MINUS"),
     ("left", "MULTIPLY", "DIVIDE"),
-    ("right", "POWER"),
     ("right", "UMINUS"),
+    ("right", "POWER"),
     ("left", "GT", "GTE", "LT", "LTE", "EQ", "NEQ"),
 )
+
+start = "statement"
 
 
 def p_statement_assignment(p):
     """statement : equality
     | unequality
-    | function_definition
     | expression
+    | function_definition
     """
     p[0] = p[1]
 
@@ -35,21 +37,35 @@ def p_function_definition(p):
     """function_definition : ID LPAREN expressions_list RPAREN ASSIGNMENT expression
     | ID LPAREN RPAREN ASSIGNMENT expression
     """
-
+    function_name = p[1]
     if len(p) == 7:
-        p[0] = FunctionDefinition(p[1], p[3], p[6])
+        parameters, body = p[3], p[6]
     elif len(p) == 6:
-        p[0] = FunctionDefinition(p[1], [], p[5])
+        parameters, body = [], p[5]
     else:
         raise SyntaxError("Invalid function definition")
 
+    p[0] = FunctionDefinition(function_name, parameters, body)
 
-def p_expressions_list_1(p):
+
+def p_function_call(p):
+    """function_call : ID LPAREN expressions_list RPAREN
+    | ID LPAREN RPAREN
+    """
+    if len(p) == 5:
+        p[0] = FunctionCallNode(p[1], p[3])
+    elif len(p) == 4:
+        p[0] = FunctionCallNode(p[1], [])
+    else:
+        raise SyntaxError("Invalid function call")
+
+
+def p_expressions_list_single(p):
     """expressions_list : expression"""
-    p[0] = [p[1]]
+    p[0] = [p[1]] if p[1] is not None else []
 
 
-def p_expressions_list_2(p):
+def p_expressions_list_multi(p):
     """expressions_list : expressions_list COMMA expression"""
     p[0] = p[1]
     p[0] += [p[3]]
@@ -67,12 +83,12 @@ def p_matrix_row(p):
         raise SyntaxError("Invalid matrix row")
 
 
-def p_matrix_column_1(p):
+def p_matrix_column_single(p):
     """matrix_column : matrix_row"""
     p[0] = [p[1]]
 
 
-def p_matrix_column_2(p):
+def p_matrix_column_multi(p):
     """matrix_column : matrix_column SEMICOLON matrix_row"""
     p[0] = p[1]
     p[0] += [p[3]]
@@ -85,19 +101,22 @@ def p_matrix(p):
 
 def p_equality(p):
     """equality : ID ASSIGNMENT expression"""
-    p[0] = Equality(p[1], p[3])
+    p[0] = Equality(TokenNode(p[1]), p[3])
 
 
-def p_function_call(p):
-    """function_call : ID LPAREN expressions_list RPAREN
-    | ID LPAREN RPAREN
-    """
-    if len(p) == 5:
-        p[0] = FunctionCallNode(p[1], p[3])
-    elif len(p) == 4:
-        p[0] = FunctionCallNode(p[1], [])
+def p_expression_function_call(p):
+    """expression : function_call"""
+    p[0] = p[1]
+
+
+def p_expression_implicit_multiply(p):
+    """expression : NUMBER ID
+    | NUMBER function_call
+    | NUMBER matrix"""
+    if p.slice[2].type == "ID":
+        p[0] = BinaryOperationNode(NumberNode(p[1]), "*", TokenNode(p[2]))
     else:
-        raise SyntaxError("Invalid function call")
+        p[0] = BinaryOperationNode(NumberNode(p[1]), "*", p[2])
 
 
 def p_expression_unequality(p):
@@ -128,11 +147,6 @@ def p_expression_uminus(p):
     p[0] = BinaryOperationNode(NumberNode(-1.0), "*", p[2])
 
 
-def p_expression_function_call(p):
-    """expression : function_call"""
-    p[0] = p[1]
-
-
 def p_expression_number(p):
     """expression : NUMBER"""
     p[0] = NumberNode(p[1])
@@ -153,21 +167,13 @@ def p_expression_group(p):
     p[0] = p[2]
 
 
-def p_expression_implicit_multiply(p):
-    """expression : NUMBER ID
-    | NUMBER function_call
-    | NUMBER matrix"""
-    if p.slice[2].type == "ID":
-        p[0] = BinaryOperationNode(NumberNode(p[1]), "*", TokenNode(p[2]))
-    else:
-        p[0] = BinaryOperationNode(NumberNode(p[1]), "*", p[2])
-
-
 def p_error(p):
     if p:
-        raise SyntaxError(f"Syntax error at '{p.value}'")
+        message = f"Syntax error at '{p.value}'"
+        raise SyntaxError(message)
     else:
-        raise SyntaxError("Syntax error at EOF")
+        message = f"Syntax error at EOF"
+        raise SyntaxError(message)
 
 
-parser = yacc.yacc(start="statement")
+parser = yacc.yacc()

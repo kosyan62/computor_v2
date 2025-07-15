@@ -1,6 +1,13 @@
 import pytest
 
-from computor_v2.parsing.AST import (FunctionDefinition, FunctionCallNode, BinaryOperationNode, NumberNode, TokenNode, MatrixNode, Unequality, )
+from computor_v2.parsing.AST import (
+    FunctionDefinition,
+    FunctionCallNode,
+    BinaryOperationNode,
+    NumberNode,
+    TokenNode,
+    MatrixNode,
+)
 from computor_v2.parsing.parser import parser
 
 valid_test_data = [
@@ -41,7 +48,9 @@ valid_test_data = [
     (
         "f(x) = x + 1",
         FunctionDefinition(
-            "f", [TokenNode("x")], BinaryOperationNode(TokenNode("x"), "+", NumberNode(1.0))
+            "f",
+            [TokenNode("x")],
+            BinaryOperationNode(TokenNode("x"), "+", NumberNode(1.0)),
         ),
     ),
     # Function with multiple arguments
@@ -63,13 +72,13 @@ valid_test_data = [
         FunctionDefinition(
             "m",
             [],
-                MatrixNode(
-                    [
-                        [NumberNode(1.0), NumberNode(2.0)],
-                        [NumberNode(3.0), NumberNode(4.0)],
-                    ]
-                )
+            MatrixNode(
+                [
+                    [NumberNode(1.0), NumberNode(2.0)],
+                    [NumberNode(3.0), NumberNode(4.0)],
+                ]
             ),
+        ),
     ),
     # Function with nested function call
     (
@@ -100,6 +109,11 @@ valid_test_data = [
             [[NumberNode(1.0), NumberNode(2.0)], [NumberNode(3.0), NumberNode(4.0)]]
         ),
     ),
+    ("f(x * 2 + 1)", FunctionCallNode("f",
+        [BinaryOperationNode(
+            BinaryOperationNode(
+                TokenNode("x"), "*", NumberNode(2.0)), "+",
+                                                 NumberNode(1.0))]))
 ]
 
 
@@ -114,12 +128,37 @@ invalid_inputs = [
     "(",
     "f(x",
     "[1, 2]",
-    "f(1, , 2)", "f(x) =", "  ", "()", "[1, 2; 3, 4]",
+    "f(1, , 2)",
+    "f(x) =",
+    "  ",
+    "()",
+    "[1, 2; 3, 4]",
     "f(x, )",
-    "1 <= 2 < 3"
+    "1 <= 2 < 3",
+    # Function with expression as parameter
+    "f(x + y) = 2",
+    # Matrix with extra semicolon
+    "[[1, 2];]",
+    # Mismatched brackets
+    "[[1, 2]",
+    "f(",
+    "[[1,2],[3,4]",
+    "[[1,2][3,4]]",
+    "x = ",
+    "= 42",
+    "f(x,)",
+    "1 + * 2",
+    "2 **",
+    "-*",
+    "2(1 + 2)",
+    "2(x)",
+    "f(())",
+    "max((1, 2, 3))",
 ]
+
 
 @pytest.mark.parametrize("test_input", invalid_inputs)
 def test_invalid_parse(test_input):
-    with pytest.raises(SyntaxError):
-        parser.parse(test_input)
+    with pytest.raises(Exception):
+        ret = parser.parse(test_input)
+        pytest.fail(f"Invalid input '{test_input}' parsed as '{ret}'")

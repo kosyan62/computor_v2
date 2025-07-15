@@ -133,8 +133,13 @@ class MatrixNode(Node):
 
 class FunctionDefinition:
     def __init__(self, name, args, expression):
-        if not isinstance(args, list):
+        if isinstance(args, TokenNode):
             args = [args]
+        elif isinstance(args, list):
+            if not all([isinstance(x, TokenNode) for x in args]):
+                raise ValueError("Wrong arguments type in FunctionDefinition")
+        else:
+            raise ValueError("Wrong arguments type in FunctionDefinition")
         self.name = name
         self.args_count = len(args)
         self.args = args
@@ -160,7 +165,7 @@ class Equality:
         self.right = right
 
     def __repr__(self):
-        return f"({self.left} = {self.right})"
+        return f"Equality({self.left} = {self.right})"
 
     def __eq__(self, other):
         if isinstance(other, Equality):
@@ -175,7 +180,7 @@ class Unequality:
         self.right = right
 
     def __repr__(self):
-        return f"({self.left} {self.sign} {self.right})"
+        return f"Unequality({self.left} {self.sign} {self.right})"
 
     def __eq__(self, other):
         if isinstance(other, Unequality):
