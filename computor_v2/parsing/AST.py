@@ -3,11 +3,36 @@ from abc import ABC
 
 
 class Node(ABC):
+    """
+    Represents a base abstract node with a name, value, and child nodes.
+
+    This abstract base class is designed to serve as a foundation for creating
+    various types of nodes, each with a unique name, a corresponding value, and an
+    optional list of child nodes. It enforces the implementation of specific
+    methods (`__repr__` and `__eq__`) in any concrete subclass, ensuring
+    consistent behavior. It also supports tree-structured data representation
+    through its `print_tree` method.
+
+    Attributes:
+        name (str): The name or identifier of the node.
+        value: The value or payload associated with the node.
+        children (list): A list of child nodes that are connected to the current
+            node. Defaults to an empty list.
+    """
+
     @abc.abstractmethod
     def __init__(self, name, value, children=None):
         self.name = name
         self.value = value
         self.children = children if children else []
+
+    @abc.abstractmethod
+    def __repr__(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def __eq__(self, other):
+        raise NotImplementedError
 
     def print_tree(self, indent=0):
         print("  " * indent + str(self))
@@ -59,12 +84,7 @@ class TokenNode(Node):
         super().__init__(self.name, value)
 
     def __repr__(self):
-        token = f"Token({self.name}"
-        if self.value:
-            token += f" <{self.value}>)"
-        else:
-            token += ")"
-        return token
+        return f"Token({self.value}"
 
     def __eq__(self, other):
         if isinstance(other, TokenNode):
@@ -131,6 +151,7 @@ class FunctionDefinition:
                 and self.expression == other.expression
                 and all(a == b for a, b in zip(self.args, other.args))
             )
+        return False
 
 
 class Equality:

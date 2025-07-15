@@ -23,6 +23,13 @@ test_data = [
     ("2 <= 3", Unequality(NumberNode(2.0), "<=", NumberNode(3.0))),
     # Unary minus
     ("-3", BinaryOperationNode(NumberNode(-1.0), "*", NumberNode(3.0))),
+    ("-f(x)", BinaryOperationNode(NumberNode(-1.0), "*",
+                                  FunctionCallNode("f", [TokenNode("x")]))),
+    ("- (1 + 2)", BinaryOperationNode(NumberNode(-1.0), "*",
+                                         BinaryOperationNode(NumberNode(1.0),
+                                                             "+",
+                                                             NumberNode(2.0)))),
+
     # Implicit multiplication
     ("2x", BinaryOperationNode(NumberNode(2.0), "*", TokenNode("x"))),
     (
@@ -33,6 +40,7 @@ test_data = [
     ),
     # Function calls
     ("f(x)", FunctionCallNode("f", [TokenNode("x")])),
+    ("f((x))", FunctionCallNode("f", [TokenNode("x")])),
     (
         "max(1, 2, 3)",
         FunctionCallNode("max", [NumberNode(1.0), NumberNode(2.0), NumberNode(3.0)]),
@@ -62,7 +70,7 @@ test_data = [
     ("f()", FunctionCallNode("f", [])),
     ("f() = 42", FunctionDefinition("f", [], NumberNode(42.0))),
     ("[[]]", MatrixNode([[]])),
-    ("[[]; [1, 2]]", MatrixNode([[], [NumberNode(1.0), NumberNode(2.0)]])),
+    ("[[]; [1, 2]]", MatrixNode([[], [NumberNode(1.0), NumberNode(2.0)]])),  # This is valid for AST but will be checked on later stages
 ]
 
 

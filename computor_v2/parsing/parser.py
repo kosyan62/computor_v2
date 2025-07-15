@@ -23,7 +23,8 @@ precedence = (
 
 
 def p_statement_assignment(p):
-    """statement : assignment
+    """statement : equality
+    | unequality
     | function_definition
     | expression
     """
@@ -82,8 +83,8 @@ def p_matrix(p):
     p[0] = MatrixNode(p[2])
 
 
-def p_assignment(p):
-    """assignment : ID ASSIGNMENT expression"""
+def p_equality(p):
+    """equality : ID ASSIGNMENT expression"""
     p[0] = Equality(p[1], p[3])
 
 
@@ -100,7 +101,7 @@ def p_function_call(p):
 
 
 def p_expression_unequality(p):
-    """expression : expression GT expression
+    """unequality : expression GT expression
     | expression GTE expression
     | expression LT expression
     | expression LTE expression

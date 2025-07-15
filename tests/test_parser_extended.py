@@ -100,15 +100,6 @@ valid_test_data = [
             [[NumberNode(1.0), NumberNode(2.0)], [NumberNode(3.0), NumberNode(4.0)]]
         ),
     ),
-    # Chained comparisons
-    (
-        "1 < 2 <= 3",
-        Unequality(
-            Unequality(NumberNode(1.0), "<", NumberNode(2.0)),
-            "<=",
-            NumberNode(3.0),
-        ),
-    ),
 ]
 
 
@@ -123,9 +114,10 @@ invalid_inputs = [
     "(",
     "f(x",
     "[1, 2]",
-    "f(1, , 2)", "f(x) =", "  ", "()", "[1, 2; 3, 4]"
+    "f(1, , 2)", "f(x) =", "  ", "()", "[1, 2; 3, 4]",
+    "f(x, )",
+    "1 <= 2 < 3"
 ]
-
 
 @pytest.mark.parametrize("test_input", invalid_inputs)
 def test_invalid_parse(test_input):
