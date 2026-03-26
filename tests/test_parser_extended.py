@@ -7,6 +7,7 @@ from computor_v2.parsing.AST import (
     NumberNode,
     TokenNode,
     MatrixNode,
+    Equality,
 )
 from computor_v2.parsing.parser import parser
 
@@ -122,6 +123,33 @@ valid_test_data = [
             ],
         ),
     ),
+    # Unary minus applied directly to a token inside a function call
+    (
+        "f(-x)",
+        FunctionCallNode(
+            "f", [BinaryOperationNode(NumberNode(-1.0), "*", TokenNode("x"))]
+        ),
+    ),
+    # Function definition with power expression
+    (
+        "f(x) = x^2",
+        FunctionDefinition(
+            "f",
+            [TokenNode("x")],
+            BinaryOperationNode(TokenNode("x"), "^", NumberNode(2.0)),
+        ),
+    ),
+    # Three levels of nested function calls
+    (
+        "f(g(h(x)))",
+        FunctionCallNode(
+            "f",
+            [FunctionCallNode("g", [FunctionCallNode("h", [TokenNode("x")])])],
+        ),
+    ),
+    # Uppercase identifiers (lexer accepts [a-zA-Z_])
+    ("X = 1", Equality(TokenNode("X"), NumberNode(1.0))),
+    ("VarA", TokenNode("VarA")),
 ]
 
 
@@ -170,6 +198,25 @@ invalid_inputs = [
     "max((1, 2, 3))",
     "f(x=1)",
     "f,f(,)f(1 2)",
+    # Empty / whitespace-only input
+    "",
+    # Lone operators
+    "+",
+    "/",
+    "%",
+    "^",
+    # Trailing operators (incomplete expression)
+    "1 +",
+    "x *",
+    "x ^",
+    # Leading non-unary operators
+    "+ 1",
+    "* 2",
+    # Double assignment (equality is not an expression, so rhs can't be another equality)
+    "x = y = 1",
+    # Malformed float literals
+    "1.",
+    ".5",
 ]
 
 

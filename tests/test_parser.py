@@ -212,6 +212,37 @@ operations_test_data = [
     ),
     # Some edge case tests
     ("((((((1 + 2))))))", BinaryOperationNode(NumberNode(1.0), "+", NumberNode(2))),
+    # Float literals
+    ("4.242", NumberNode(4.242)),
+    ("0.5", NumberNode(0.5)),
+    # Matrix assignment
+    (
+        "m = [[1,2];[3,4]]",
+        Equality(
+            TokenNode("m"),
+            MatrixNode([[NumberNode(1.0), NumberNode(2.0)], [NumberNode(3.0), NumberNode(4.0)]]),
+        ),
+    ),
+    # Assignment to function call result
+    ("x = f(2)", Equality(TokenNode("x"), FunctionCallNode("f", [NumberNode(2.0)]))),
+    # Equation form: expr = expr (both sides non-trivial)
+    (
+        "x + 1 = 2 * x",
+        Equality(
+            BinaryOperationNode(TokenNode("x"), "+", NumberNode(1.0)),
+            BinaryOperationNode(NumberNode(2.0), "*", TokenNode("x")),
+        ),
+    ),
+    # Modulo with token operands
+    ("x % 2", BinaryOperationNode(TokenNode("x"), "%", NumberNode(2.0))),
+    ("a % b", BinaryOperationNode(TokenNode("a"), "%", TokenNode("b"))),
+    # Column vector (single-column matrix)
+    (
+        "[[1];[2];[3]]",
+        MatrixNode([[NumberNode(1.0)], [NumberNode(2.0)], [NumberNode(3.0)]]),
+    ),
+    # Single-element matrix
+    ("[[5]]", MatrixNode([[NumberNode(5.0)]])),
 ]
 
 operation_order_test_data = [
@@ -276,6 +307,32 @@ operation_order_test_data = [
         "2 ^ 3 ^ 2",
         BinaryOperationNode(
             NumberNode(2), "^", BinaryOperationNode(NumberNode(3), "^", NumberNode(2))
+        ),
+    ),
+    # Modulo binds tighter than + (same level as * and /)
+    (
+        "1 + 5 % 3",
+        BinaryOperationNode(
+            NumberNode(1.0), "+", BinaryOperationNode(NumberNode(5.0), "%", NumberNode(3.0))
+        ),
+    ),
+    (
+        "5 % 3 + 1",
+        BinaryOperationNode(
+            BinaryOperationNode(NumberNode(5.0), "%", NumberNode(3.0)), "+", NumberNode(1.0)
+        ),
+    ),
+    # FLOORDIV binds tighter than +
+    (
+        "1 + 8 // 4",
+        BinaryOperationNode(
+            NumberNode(1.0), "+", BinaryOperationNode(NumberNode(8.0), "//", NumberNode(4.0))
+        ),
+    ),
+    (
+        "8 // 4 - 1",
+        BinaryOperationNode(
+            BinaryOperationNode(NumberNode(8.0), "//", NumberNode(4.0)), "-", NumberNode(1.0)
         ),
     ),
 ]

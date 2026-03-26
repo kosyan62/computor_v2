@@ -1,4 +1,4 @@
-from parsing.parser import parser
+from computor_v2.parsing.parser import parser
 
 
 class ComputorV2:

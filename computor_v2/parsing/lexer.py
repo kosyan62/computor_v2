@@ -77,7 +77,7 @@ def t_ID(t):
 
 
 def t_newline(t):
-    r"""n+"""
+    r"""\n+"""
     t.lexer.lineno += len(t.value)
 
 

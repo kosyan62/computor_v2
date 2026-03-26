@@ -14,9 +14,8 @@ from .lexer import tokens  # noqa F401
 # Parsing rules
 precedence = (
     ("nonassoc", "GT", "GTE", "LT", "LTE", "EQ", "NEQ"),
-    ("left", "MODULO"),
     ("left", "PLUS", "MINUS"),
-    ("left", "MULTIPLY", "DIVIDE"),
+    ("left", "MULTIPLY", "DIVIDE", "FLOORDIV", "MODULO"),
     ("right", "UMINUS"),
     ("right", "POWER"),
 )

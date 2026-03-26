@@ -105,7 +105,7 @@ class TokenNode(Node):
         super().__init__(self.name, value)
 
     def __repr__(self):
-        return f"Token({self.value}"
+        return f"Token({self.value})"
 
     def __eq__(self, other):
         if isinstance(other, TokenNode):
@@ -131,10 +131,6 @@ class FunctionCallNode(Node):
                 and all(a == b for a, b in zip(self.args, other.args))
             )
         return False
-
-
-def __repr__(self):
-    return f"FunctionDefinition({self.value})"
 
 
 class MatrixNode(Node):
