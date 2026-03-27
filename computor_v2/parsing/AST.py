@@ -40,7 +40,7 @@ class Node(ABC):
             child.print_tree(indent + 1)
 
 
-class RootNode(Node):
+class StatementNode(Node):
     name = "Root"
 
     def __init__(self, left, operation, right):
@@ -98,17 +98,17 @@ class NumberNode(Node):
         return False
 
 
-class TokenNode(Node):
-    name = "Token"
+class VariableNode(Node):
+    name = "Variable"
 
     def __init__(self, value):
         super().__init__(self.name, value)
 
     def __repr__(self):
-        return f"Token({self.value})"
+        return f"Variable({self.value})"
 
     def __eq__(self, other):
-        if isinstance(other, TokenNode):
+        if isinstance(other, VariableNode):
             return self.value == other.value
         return False
 
@@ -148,15 +148,15 @@ class MatrixNode(Node):
         return False
 
 
-class FunctionDefinition(RootNode):
+class FunctionDefinitionNode(StatementNode):
     def __init__(self, name, args, expression):
-        if isinstance(args, TokenNode):
+        if isinstance(args, VariableNode):
             args = [args]
         elif isinstance(args, list):
-            if not all([isinstance(x, TokenNode) for x in args]):
-                raise ValueError("Wrong arguments type in FunctionDefinition")
+            if not all([isinstance(x, VariableNode) for x in args]):
+                raise ValueError("Wrong arguments type in FunctionDefinitionNode")
         else:
-            raise ValueError("Wrong arguments type in FunctionDefinition")
+            raise ValueError("Wrong arguments type in FunctionDefinitionNode")
         self.name = name
         self.args_count = len(args)
         self.args = args
@@ -164,10 +164,10 @@ class FunctionDefinition(RootNode):
         super().__init__(f"{self.name}({','.join([a.value for a in args])})", "def", expression)
 
     def __repr__(self):
-        return f"FunctionDefinition({self.name}({self.args_count} args): {self.expression})"
+        return f"FunctionDefinitionNode({self.name}({self.args_count} args): {self.expression})"
 
     def __eq__(self, other):
-        if isinstance(other, FunctionDefinition):
+        if isinstance(other, FunctionDefinitionNode):
             return (
                 self.name == other.name
                 and self.args_count == other.args_count
@@ -177,7 +177,7 @@ class FunctionDefinition(RootNode):
         return False
 
 
-class Equality(RootNode):
+class Equality(StatementNode):
     operation = "="
 
     def __init__(self, left, right):
@@ -194,7 +194,7 @@ class Equality(RootNode):
         return False
 
 
-class Unequality(RootNode):
+class ComparisonNode(StatementNode):
     def __init__(self, left, operator, right):
         self.left = left
         self.operator = operator
@@ -202,10 +202,10 @@ class Unequality(RootNode):
         super().__init__(left, operator, right)
 
     def __repr__(self):
-        return f"Unequality({self.left} {self.operator} {self.right})"
+        return f"Comparison({self.left} {self.operator} {self.right})"
 
     def __eq__(self, other):
-        if isinstance(other, Unequality):
+        if isinstance(other, ComparisonNode):
             return (
                     self.left == other.left
                     and self.operator == other.operator

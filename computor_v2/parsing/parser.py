@@ -1,12 +1,12 @@
 from .AST import (
     NumberNode,
-    TokenNode,
+    VariableNode,
     BinaryOperationNode,
     FunctionCallNode,
-    FunctionDefinition,
+    FunctionDefinitionNode,
     MatrixNode,
     Equality,
-    Unequality,
+    ComparisonNode,
 )
 from ply import yacc
 from .lexer import tokens, lexer as _base_lexer, ImplicitMultiplyLexer  # noqa F401
@@ -46,7 +46,7 @@ def p_function_definition(p):
     else:
         raise SyntaxError("Invalid function definition")
 
-    p[0] = FunctionDefinition(function_name, parameters, body)
+    p[0] = FunctionDefinitionNode(function_name, parameters, body)
 
 
 def p_function_call(p):
@@ -105,9 +105,9 @@ def p_equality(p):
     | expression ASSIGNMENT expression"""
     left, right = p[1], p[3]
     if isinstance(left, str):
-        left = TokenNode(left)
+        left = VariableNode(left)
     if isinstance(right, str):
-        right = TokenNode(right)
+        right = VariableNode(right)
     p[0] = Equality(left, right)
 
 
@@ -124,7 +124,7 @@ def p_expression_unequality(p):
     | expression EQ expression
     | expression NEQ expression
     """
-    p[0] = Unequality(p[1], p[2], p[3])
+    p[0] = ComparisonNode(p[1], p[2], p[3])
 
 
 def p_expression_binary_expression(p):
@@ -145,6 +145,11 @@ def p_expression_uminus(p):
     p[0] = BinaryOperationNode(NumberNode(-1.0), "*", p[2])
 
 
+def p_expression_uplus(p):
+    """expression : PLUS expression %prec UMINUS"""
+    p[0] = p[2]
+
+
 def p_expression_number(p):
     """expression : NUMBER"""
     p[0] = NumberNode(p[1])
@@ -152,7 +157,7 @@ def p_expression_number(p):
 
 def p_expression_variable(p):
     """expression : ID"""
-    p[0] = TokenNode(p[1])
+    p[0] = VariableNode(p[1])
 
 
 def p_expression_matrix(p):

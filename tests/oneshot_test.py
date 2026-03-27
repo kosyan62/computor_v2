@@ -16,5 +16,5 @@ def test_debug():
             [NumberNode(1.0), NumberNode(2.0), NumberNode(3.0)],
         ),
     )
-    ret = parser.parsedebug(test_data[0], debug=logger)
+    ret = parser.parse(test_data[0])
     assert ret == test_data[1]

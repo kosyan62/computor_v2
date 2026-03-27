@@ -1,31 +1,31 @@
 import pytest
 
 from computor_v2.parsing.AST import (
-    TokenNode,
+    VariableNode,
     NumberNode,
     BinaryOperationNode,
     FunctionCallNode,
     MatrixNode,
     Equality,
-    Unequality,
-    FunctionDefinition,
+    ComparisonNode,
+    FunctionDefinitionNode,
 )
 from computor_v2.parsing.parser import parser
 
 basic_types_test_data = [
     ("1", NumberNode(1.0)),
-    ("x", TokenNode("x")),
+    ("x", VariableNode("x")),
     (
         "[[1, 2];[3,4]]",
         MatrixNode(
             [[NumberNode(1.0), NumberNode(2.0)], [NumberNode(3.0), NumberNode(4.0)]]
         ),
     ),
-    ("x + 1", BinaryOperationNode(TokenNode("x"), "+", NumberNode(1.0))),
-    ("f(x)", FunctionCallNode("f", [TokenNode("x")])),
-    ("f(x) = 42", FunctionDefinition("f", [TokenNode("x")], NumberNode(42.0))),
-    ("x = 42", Equality(TokenNode("x"), NumberNode(42.0))),
-    ("x != 42", Unequality(TokenNode("x"), "!=", NumberNode(42.0))),
+    ("x + 1", BinaryOperationNode(VariableNode("x"), "+", NumberNode(1.0))),
+    ("f(x)", FunctionCallNode("f", [VariableNode("x")])),
+    ("f(x) = 42", FunctionDefinitionNode("f", [VariableNode("x")], NumberNode(42.0))),
+    ("x = 42", Equality(VariableNode("x"), NumberNode(42.0))),
+    ("x != 42", ComparisonNode(VariableNode("x"), "!=", NumberNode(42.0))),
 ]
 
 operations_test_data = [
@@ -46,8 +46,8 @@ operations_test_data = [
     ("5 % 2", BinaryOperationNode(NumberNode(5.0), "%", NumberNode(2.0))),
     ("9 // 4", BinaryOperationNode(NumberNode(9.0), "//", NumberNode(4.0))),
     # For token
-    ("2 * x", BinaryOperationNode(NumberNode(2), "*", TokenNode("x"))),
-    ("x * 2", BinaryOperationNode(TokenNode("x"), "*", NumberNode(2))),
+    ("2 * x", BinaryOperationNode(NumberNode(2), "*", VariableNode("x"))),
+    ("x * 2", BinaryOperationNode(VariableNode("x"), "*", NumberNode(2))),
     # Matrix
     (
         "[[1,2];[3,4]]",
@@ -93,12 +93,12 @@ operations_test_data = [
         ),
     ),
     # Comparison Operators
-    ("1 == 2", Unequality(NumberNode(1.0), "==", NumberNode(2.0))),
-    ("3 != 4", Unequality(NumberNode(3.0), "!=", NumberNode(4.0))),
-    ("2 > 1", Unequality(NumberNode(2.0), ">", NumberNode(1.0))),
-    ("2 >= 2", Unequality(NumberNode(2.0), ">=", NumberNode(2.0))),
-    ("1 < 2", Unequality(NumberNode(1.0), "<", NumberNode(2.0))),
-    ("2 <= 3", Unequality(NumberNode(2.0), "<=", NumberNode(3.0))),
+    ("1 == 2", ComparisonNode(NumberNode(1.0), "==", NumberNode(2.0))),
+    ("3 != 4", ComparisonNode(NumberNode(3.0), "!=", NumberNode(4.0))),
+    ("2 > 1", ComparisonNode(NumberNode(2.0), ">", NumberNode(1.0))),
+    ("2 >= 2", ComparisonNode(NumberNode(2.0), ">=", NumberNode(2.0))),
+    ("1 < 2", ComparisonNode(NumberNode(1.0), "<", NumberNode(2.0))),
+    ("2 <= 3", ComparisonNode(NumberNode(2.0), "<=", NumberNode(3.0))),
     # Function calls
     ("f()", FunctionCallNode("f", [])),
     ("f(1)", FunctionCallNode("f", [NumberNode(1.0)])),
@@ -114,14 +114,14 @@ operations_test_data = [
         FunctionCallNode("max", [NumberNode(1.0), NumberNode(2.0), NumberNode(3.0)]),
     ),
     # Function calls for tokens
-    ("f(x)", FunctionCallNode("f", [TokenNode("x")])),
-    ("f((x))", FunctionCallNode("f", [TokenNode("x")])),
-    ("g(x, 42)", FunctionCallNode("g", [TokenNode("x"), NumberNode(42.0)])),
-    ("f(x, y)", FunctionCallNode("f", [TokenNode("x"), TokenNode("y")])),
+    ("f(x)", FunctionCallNode("f", [VariableNode("x")])),
+    ("f((x))", FunctionCallNode("f", [VariableNode("x")])),
+    ("g(x, 42)", FunctionCallNode("g", [VariableNode("x"), NumberNode(42.0)])),
+    ("f(x, y)", FunctionCallNode("f", [VariableNode("x"), VariableNode("y")])),
     (
         "f(x + y)",
         FunctionCallNode(
-            "f", [BinaryOperationNode(TokenNode("x"), "+", TokenNode("y"))]
+            "f", [BinaryOperationNode(VariableNode("x"), "+", VariableNode("y"))]
         ),
     ),
     (
@@ -159,18 +159,18 @@ operations_test_data = [
         ),
     ),
     # Function definition
-    ("f(x) = 42", FunctionDefinition("f", [TokenNode("x")], NumberNode(42.0))),
-    ("f() = 42", FunctionDefinition("f", [], NumberNode(42.0))),
+    ("f(x) = 42", FunctionDefinitionNode("f", [VariableNode("x")], NumberNode(42.0))),
+    ("f() = 42", FunctionDefinitionNode("f", [], NumberNode(42.0))),
     (
         "f(x, y) = 42",
-        FunctionDefinition("f", [TokenNode("x"), TokenNode("y")], NumberNode(42.0)),
+        FunctionDefinitionNode("f", [VariableNode("x"), VariableNode("y")], NumberNode(42.0)),
     ),
     (
         "f(x) = 2 * x",
-        FunctionDefinition(
+        FunctionDefinitionNode(
             "f",
-            [TokenNode("x")],
-            BinaryOperationNode(NumberNode(2.0), "*", TokenNode("x")),
+            [VariableNode("x")],
+            BinaryOperationNode(NumberNode(2.0), "*", VariableNode("x")),
         ),
     ),
     # Unary minus
@@ -178,7 +178,7 @@ operations_test_data = [
     (
         "-f(x)",
         BinaryOperationNode(
-            NumberNode(-1.0), "*", FunctionCallNode("f", [TokenNode("x")])
+            NumberNode(-1.0), "*", FunctionCallNode("f", [VariableNode("x")])
         ),
     ),
     (
@@ -210,11 +210,11 @@ operations_test_data = [
         ),
     ),
     # Simple assignment
-    ("a = 4", Equality(TokenNode("a"), NumberNode(4))),  # Matrix
+    ("a = 4", Equality(VariableNode("a"), NumberNode(4))),  # Matrix
     (
         "a = 1 + x",
         Equality(
-            TokenNode("a"), BinaryOperationNode(NumberNode(1.0), "+", TokenNode("x"))
+            VariableNode("a"), BinaryOperationNode(NumberNode(1.0), "+", VariableNode("x"))
         ),
     ),
     # Some edge case tests
@@ -226,23 +226,23 @@ operations_test_data = [
     (
         "m = [[1,2];[3,4]]",
         Equality(
-            TokenNode("m"),
+            VariableNode("m"),
             MatrixNode([[NumberNode(1.0), NumberNode(2.0)], [NumberNode(3.0), NumberNode(4.0)]]),
         ),
     ),
     # Assignment to function call result
-    ("x = f(2)", Equality(TokenNode("x"), FunctionCallNode("f", [NumberNode(2.0)]))),
+    ("x = f(2)", Equality(VariableNode("x"), FunctionCallNode("f", [NumberNode(2.0)]))),
     # Equation form: expr = expr (both sides non-trivial)
     (
         "x + 1 = 2 * x",
         Equality(
-            BinaryOperationNode(TokenNode("x"), "+", NumberNode(1.0)),
-            BinaryOperationNode(NumberNode(2.0), "*", TokenNode("x")),
+            BinaryOperationNode(VariableNode("x"), "+", NumberNode(1.0)),
+            BinaryOperationNode(NumberNode(2.0), "*", VariableNode("x")),
         ),
     ),
     # Modulo with token operands
-    ("x % 2", BinaryOperationNode(TokenNode("x"), "%", NumberNode(2.0))),
-    ("a % b", BinaryOperationNode(TokenNode("a"), "%", TokenNode("b"))),
+    ("x % 2", BinaryOperationNode(VariableNode("x"), "%", NumberNode(2.0))),
+    ("a % b", BinaryOperationNode(VariableNode("a"), "%", VariableNode("b"))),
     # Column vector (single-column matrix)
     (
         "[[1];[2];[3]]",
@@ -253,29 +253,29 @@ operations_test_data = [
     # Унарный минус в присваивании
     (
         "x = -3",
-        Equality(TokenNode("x"), BinaryOperationNode(NumberNode(-1.0), "*", NumberNode(3.0))),
+        Equality(VariableNode("x"), BinaryOperationNode(NumberNode(-1.0), "*", NumberNode(3.0))),
     ),
     # Степень в присваивании
     (
         "x = 2 ^ 3",
-        Equality(TokenNode("x"), BinaryOperationNode(NumberNode(2.0), "^", NumberNode(3.0))),
+        Equality(VariableNode("x"), BinaryOperationNode(NumberNode(2.0), "^", NumberNode(3.0))),
     ),
     # Вложенный вызов функции
-    ("f(g(x))", FunctionCallNode("f", [FunctionCallNode("g", [TokenNode("x")])])),
+    ("f(g(x))", FunctionCallNode("f", [FunctionCallNode("g", [VariableNode("x")])])),
     # Рекурсивный вызов той же функции
-    ("f(f(x))", FunctionCallNode("f", [FunctionCallNode("f", [TokenNode("x")])])),
+    ("f(f(x))", FunctionCallNode("f", [FunctionCallNode("f", [VariableNode("x")])])),
     # Тело функции — вызов другой функции
     (
         "f(x) = g(x)",
-        FunctionDefinition("f", [TokenNode("x")], FunctionCallNode("g", [TokenNode("x")])),
+        FunctionDefinitionNode("f", [VariableNode("x")], FunctionCallNode("g", [VariableNode("x")])),
     ),
     # Сгруппированные выражения с переменными
     (
         "(x + 1) * (x - 1)",
         BinaryOperationNode(
-            BinaryOperationNode(TokenNode("x"), "+", NumberNode(1.0)),
+            BinaryOperationNode(VariableNode("x"), "+", NumberNode(1.0)),
             "*",
-            BinaryOperationNode(TokenNode("x"), "-", NumberNode(1.0)),
+            BinaryOperationNode(VariableNode("x"), "-", NumberNode(1.0)),
         ),
     ),
     # Матрица с выражениями внутри элементов
@@ -300,28 +300,28 @@ operations_test_data = [
     # Тройная вложенность вызовов
     (
         "f(g(h(x)))",
-        FunctionCallNode("f", [FunctionCallNode("g", [FunctionCallNode("h", [TokenNode("x")])])]),
+        FunctionCallNode("f", [FunctionCallNode("g", [FunctionCallNode("h", [VariableNode("x")])])]),
     ),
     # Uppercase идентификаторы
-    ("X = 1", Equality(TokenNode("X"), NumberNode(1.0))),
-    ("VarA", TokenNode("VarA")),
+    ("X = 1", Equality(VariableNode("X"), NumberNode(1.0))),
+    ("VarA", VariableNode("VarA")),
     # Функция с несколькими аргументами в определении
     (
         "sum(a, b, c) = a + b + c",
-        FunctionDefinition(
+        FunctionDefinitionNode(
             "sum",
-            [TokenNode("a"), TokenNode("b"), TokenNode("c")],
+            [VariableNode("a"), VariableNode("b"), VariableNode("c")],
             BinaryOperationNode(
-                BinaryOperationNode(TokenNode("a"), "+", TokenNode("b")),
+                BinaryOperationNode(VariableNode("a"), "+", VariableNode("b")),
                 "+",
-                TokenNode("c"),
+                VariableNode("c"),
             ),
         ),
     ),
     # Функция возвращает матрицу
     (
         "m() = [[1, 2]; [3, 4]]",
-        FunctionDefinition(
+        FunctionDefinitionNode(
             "m",
             [],
             MatrixNode([[NumberNode(1.0), NumberNode(2.0)], [NumberNode(3.0), NumberNode(4.0)]]),
@@ -330,23 +330,23 @@ operations_test_data = [
     # Тело функции — вызов с вычислением
     (
         "f(x) = g(x) + 1",
-        FunctionDefinition(
+        FunctionDefinitionNode(
             "f",
-            [TokenNode("x")],
-            BinaryOperationNode(FunctionCallNode("g", [TokenNode("x")]), "+", NumberNode(1.0)),
+            [VariableNode("x")],
+            BinaryOperationNode(FunctionCallNode("g", [VariableNode("x")]), "+", NumberNode(1.0)),
         ),
     ),
     # Функция с определением через степень
     (
         "f(x) = x^2",
-        FunctionDefinition(
-            "f", [TokenNode("x")], BinaryOperationNode(TokenNode("x"), "^", NumberNode(2.0))
+        FunctionDefinitionNode(
+            "f", [VariableNode("x")], BinaryOperationNode(VariableNode("x"), "^", NumberNode(2.0))
         ),
     ),
     # Унарный минус внутри аргумента функции
     (
         "f(-x)",
-        FunctionCallNode("f", [BinaryOperationNode(NumberNode(-1.0), "*", TokenNode("x"))]),
+        FunctionCallNode("f", [BinaryOperationNode(NumberNode(-1.0), "*", VariableNode("x"))]),
     ),
     # Несколько выражений как аргументы
     (
@@ -365,7 +365,7 @@ operations_test_data = [
         FunctionCallNode(
             "f",
             [BinaryOperationNode(
-                BinaryOperationNode(TokenNode("x"), "*", NumberNode(2.0)),
+                BinaryOperationNode(VariableNode("x"), "*", NumberNode(2.0)),
                 "+",
                 NumberNode(1.0),
             )],
@@ -376,7 +376,7 @@ operations_test_data = [
         "f(x, y * z)",
         FunctionCallNode(
             "f",
-            [TokenNode("x"), BinaryOperationNode(TokenNode("y"), "*", TokenNode("z"))],
+            [VariableNode("x"), BinaryOperationNode(VariableNode("y"), "*", VariableNode("z"))],
         ),
     ),
     # Функция с матричным аргументом и числом
@@ -484,14 +484,14 @@ operation_order_test_data = [
         BinaryOperationNode(
             NumberNode(-1.0),
             "*",
-            BinaryOperationNode(TokenNode("x"), "^", NumberNode(2.0)),
+            BinaryOperationNode(VariableNode("x"), "^", NumberNode(2.0)),
         ),
     ),
     # Отрицательный показатель: x^-2 = x^(-1*2)
     (
         "x^-2",
         BinaryOperationNode(
-            TokenNode("x"),
+            VariableNode("x"),
             "^",
             BinaryOperationNode(NumberNode(-1.0), "*", NumberNode(2.0)),
         ),
@@ -500,18 +500,18 @@ operation_order_test_data = [
     (
         "x * y + z",
         BinaryOperationNode(
-            BinaryOperationNode(TokenNode("x"), "*", TokenNode("y")),
+            BinaryOperationNode(VariableNode("x"), "*", VariableNode("y")),
             "+",
-            TokenNode("z"),
+            VariableNode("z"),
         ),
     ),
     # Умножение приоритетнее сложения: x + y * z = x + (y*z)
     (
         "x + y * z",
         BinaryOperationNode(
-            TokenNode("x"),
+            VariableNode("x"),
             "+",
-            BinaryOperationNode(TokenNode("y"), "*", TokenNode("z")),
+            BinaryOperationNode(VariableNode("y"), "*", VariableNode("z")),
         ),
     ),
     # Левая ассоциативность сложения: 1 + 2 + 3 = (1+2)+3
@@ -536,16 +536,16 @@ operation_order_test_data = [
 
 implicit_multiply_test_data = [
     # Базовое неявное умножение: число сразу за идентификатором
-    ("2x", BinaryOperationNode(NumberNode(2.0), "*", TokenNode("x"))),
+    ("2x", BinaryOperationNode(NumberNode(2.0), "*", VariableNode("x"))),
     # С пробелом (тот же поток токенов после лексинга)
-    ("2 x", BinaryOperationNode(NumberNode(2.0), "*", TokenNode("x"))),
+    ("2 x", BinaryOperationNode(NumberNode(2.0), "*", VariableNode("x"))),
     # Вещественный коэффициент
-    ("3.14x", BinaryOperationNode(NumberNode(3.14), "*", TokenNode("x"))),
+    ("3.14x", BinaryOperationNode(NumberNode(3.14), "*", VariableNode("x"))),
     # Неявное умножение перед скобкой
     (
         "2(x + 1)",
         BinaryOperationNode(
-            NumberNode(2.0), "*", BinaryOperationNode(TokenNode("x"), "+", NumberNode(1.0))
+            NumberNode(2.0), "*", BinaryOperationNode(VariableNode("x"), "+", NumberNode(1.0))
         ),
     ),
     # Ключевой случай: 2x^2 должно быть 2*(x^2), а НЕ (2*x)^2
@@ -554,14 +554,14 @@ implicit_multiply_test_data = [
         BinaryOperationNode(
             NumberNode(2.0),
             "*",
-            BinaryOperationNode(TokenNode("x"), "^", NumberNode(2.0)),
+            BinaryOperationNode(VariableNode("x"), "^", NumberNode(2.0)),
         ),
     ),
     # Неявное умножение в более длинном выражении
     (
         "2x + 3",
         BinaryOperationNode(
-            BinaryOperationNode(NumberNode(2.0), "*", TokenNode("x")),
+            BinaryOperationNode(NumberNode(2.0), "*", VariableNode("x")),
             "+",
             NumberNode(3.0),
         ),
@@ -570,9 +570,9 @@ implicit_multiply_test_data = [
     (
         "2x + 3y",
         BinaryOperationNode(
-            BinaryOperationNode(NumberNode(2.0), "*", TokenNode("x")),
+            BinaryOperationNode(NumberNode(2.0), "*", VariableNode("x")),
             "+",
-            BinaryOperationNode(NumberNode(3.0), "*", TokenNode("y")),
+            BinaryOperationNode(NumberNode(3.0), "*", VariableNode("y")),
         ),
     ),
     # Полином с неявным умножением
@@ -582,23 +582,23 @@ implicit_multiply_test_data = [
             BinaryOperationNode(
                 NumberNode(2.0),
                 "*",
-                BinaryOperationNode(TokenNode("x"), "^", NumberNode(2.0)),
+                BinaryOperationNode(VariableNode("x"), "^", NumberNode(2.0)),
             ),
             "+",
-            BinaryOperationNode(NumberNode(3.0), "*", TokenNode("x")),
+            BinaryOperationNode(NumberNode(3.0), "*", VariableNode("x")),
         ),
     ),
     # В определении функции
     (
         "f(x) = 2x^2 - 5",
-        FunctionDefinition(
+        FunctionDefinitionNode(
             "f",
-            [TokenNode("x")],
+            [VariableNode("x")],
             BinaryOperationNode(
                 BinaryOperationNode(
                     NumberNode(2.0),
                     "*",
-                    BinaryOperationNode(TokenNode("x"), "^", NumberNode(2.0)),
+                    BinaryOperationNode(VariableNode("x"), "^", NumberNode(2.0)),
                 ),
                 "-",
                 NumberNode(5.0),
@@ -610,7 +610,7 @@ implicit_multiply_test_data = [
         "2x^2 = 0",
         Equality(
             BinaryOperationNode(
-                NumberNode(2.0), "*", BinaryOperationNode(TokenNode("x"), "^", NumberNode(2.0))
+                NumberNode(2.0), "*", BinaryOperationNode(VariableNode("x"), "^", NumberNode(2.0))
             ),
             NumberNode(0.0),
         ),
@@ -621,7 +621,7 @@ implicit_multiply_test_data = [
         BinaryOperationNode(
             BinaryOperationNode(NumberNode(-1.0), "*", NumberNode(2.0)),
             "*",
-            TokenNode("x"),
+            VariableNode("x"),
         ),
     ),
     # Неявное умножение с отрицательным содержимым скобок
@@ -638,44 +638,61 @@ implicit_multiply_test_data = [
         BinaryOperationNode(
             NumberNode(2.0),
             "*",
-            BinaryOperationNode(NumberNode(-1.0), "*", TokenNode("x")),
+            BinaryOperationNode(NumberNode(-1.0), "*", VariableNode("x")),
         ),
     ),
     # Коэффициент перед вызовом функции: 2func(x) = 2 * func(x)
     (
         "2func(x)",
         BinaryOperationNode(
-            NumberNode(2.0), "*", FunctionCallNode("func", [TokenNode("x")])
+            NumberNode(2.0), "*", FunctionCallNode("func", [VariableNode("x")])
         ),
     ),
     # 2x(y): x(y) — вызов функции, итого 2 * x(y)
     (
         "2x(y)",
         BinaryOperationNode(
-            NumberNode(2.0), "*", FunctionCallNode("x", [TokenNode("y")])
+            NumberNode(2.0), "*", FunctionCallNode("x", [VariableNode("y")])
         ),
     ),
     # Неявное умножение внутри аргумента функции
     (
         "f(2x)",
         FunctionCallNode(
-            "f", [BinaryOperationNode(NumberNode(2.0), "*", TokenNode("x"))]
+            "f", [BinaryOperationNode(NumberNode(2.0), "*", VariableNode("x"))]
         ),
     ),
     # Неявное умножение внутри матрицы
     (
         "[[2x, 3y]]",
         MatrixNode([[
-            BinaryOperationNode(NumberNode(2.0), "*", TokenNode("x")),
-            BinaryOperationNode(NumberNode(3.0), "*", TokenNode("y")),
+            BinaryOperationNode(NumberNode(2.0), "*", VariableNode("x")),
+            BinaryOperationNode(NumberNode(3.0), "*", VariableNode("y")),
         ]]),
+    ),
+]
+
+unary_plus_test_data = [
+    ("+1", NumberNode(1.0)),
+    ("+x", VariableNode("x")),
+    ("2 + +1", BinaryOperationNode(NumberNode(2.0), "+", NumberNode(1.0))),
+    (
+        "+-1",
+        BinaryOperationNode(NumberNode(-1.0), "*", NumberNode(1.0)),
+    ),
+    (
+        "+-+-1",
+        BinaryOperationNode(
+            NumberNode(-1.0),
+            "*",
+            BinaryOperationNode(NumberNode(-1.0), "*", NumberNode(1.0)),
+        ),
     ),
 ]
 
 # --- Тесты на явные ошибки синтаксиса --- #
 invalid_input_test_data = [
     "1 +",        # незаконченное выражение
-    "+ 1",        # оператор в начале (без унарного минуса)
     "f(x",        # незакрытая скобка
     "[[1,2]",     # незакрытая матрица
 ]
@@ -702,11 +719,11 @@ def test_operations_order(test_input, expected):
 def test_polynomial():
     ax_squared = parser.parse("2*x^2")
     assert ax_squared == BinaryOperationNode(
-            NumberNode(2.0), "*", BinaryOperationNode(TokenNode("x"), "^", NumberNode(2.0))
+            NumberNode(2.0), "*", BinaryOperationNode(VariableNode("x"), "^", NumberNode(2.0))
     )
     bx = parser.parse("3*x")
     assert bx == BinaryOperationNode(
-        NumberNode(3.0), "*", TokenNode("x")
+        NumberNode(3.0), "*", VariableNode("x")
     )
     c = parser.parse("4")
     assert c == NumberNode(4.0)
@@ -724,8 +741,7 @@ def test_polynomial():
     "x ^",
     "f(x) =",
     "2 **",
-    # Операторы в начале (не унарный минус)
-    "+ 1",
+    # Операторы в начале (не унарный минус/плюс)
     "* 2",
     "-*",
     "1 + * 2",
@@ -784,5 +800,11 @@ def test_invalid_inputs(test_input):
 
 @pytest.mark.parametrize("test_input,expected", implicit_multiply_test_data)
 def test_implicit_multiply(test_input, expected):
+    result = parser.parse(test_input)
+    assert result == expected
+
+
+@pytest.mark.parametrize("test_input,expected", unary_plus_test_data)
+def test_unary_plus(test_input, expected):
     result = parser.parse(test_input)
     assert result == expected
