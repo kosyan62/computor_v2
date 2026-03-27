@@ -4,6 +4,7 @@ tokens = (  # Operators
     "PLUS",
     "MINUS",
     "MULTIPLY",
+    "MATMUL",
     "DIVIDE",
     "POWER",
     "MODULO",
@@ -59,9 +60,13 @@ t_ASSIGNMENT = r"\="
 t_ignore = " \t"
 
 
+def t_MATMUL(t):
+    r"""\*\*"""
+    return t
+
+
 def t_POWER(t):
-    r"""\^|\*\*"""
-    t.value = "^"
+    r"""\^"""
     return t
 
 
@@ -87,3 +92,45 @@ def t_error(t):
 
 # Build the lexer
 lexer = lex.lex()
+
+_IMPLICIT_MULTIPLY_AFTER = ("NUMBER",)
+_IMPLICIT_MULTIPLY_BEFORE = ("ID", "LPAREN")
+
+
+class ImplicitMultiplyLexer:
+    """Обёртка над PLY-лексером: инжектирует MULTIPLY между NUMBER и ID/LPAREN."""
+
+    def __init__(self, inner):
+        self.inner = inner
+        self._queue: list = []
+
+    def input(self, data):
+        self.inner.input(data)
+        self._queue = []
+
+    def token(self):
+        if self._queue:
+            return self._queue.pop(0)
+
+        tok = self.inner.token()
+        if tok is None:
+            return None
+
+        if tok.type in _IMPLICIT_MULTIPLY_AFTER:
+            nxt = self.inner.token()
+            if nxt is not None and nxt.type in _IMPLICIT_MULTIPLY_BEFORE:
+                mul = lex.LexToken()
+                mul.type = "MULTIPLY"
+                mul.value = "*"
+                mul.lineno = tok.lineno
+                mul.lexpos = tok.lexpos
+                self._queue.append(mul)
+                self._queue.append(nxt)
+
+            elif nxt is not None:
+                self._queue.append(nxt)
+
+        return tok
+
+    def __getattr__(self, name):
+        return getattr(self.inner, name)

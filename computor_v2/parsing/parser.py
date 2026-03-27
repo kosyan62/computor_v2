@@ -9,13 +9,15 @@ from .AST import (
     Unequality,
 )
 from ply import yacc
-from .lexer import tokens  # noqa F401
+from .lexer import tokens, lexer as _base_lexer, ImplicitMultiplyLexer  # noqa F401
+
+_lexer = ImplicitMultiplyLexer(_base_lexer)
 
 # Parsing rules
 precedence = (
     ("nonassoc", "GT", "GTE", "LT", "LTE", "EQ", "NEQ"),
     ("left", "PLUS", "MINUS"),
-    ("left", "MULTIPLY", "DIVIDE", "FLOORDIV", "MODULO"),
+    ("left", "MULTIPLY", "MATMUL", "DIVIDE", "FLOORDIV", "MODULO"),
     ("right", "UMINUS"),
     ("right", "POWER"),
 )
@@ -129,6 +131,7 @@ def p_expression_binary_expression(p):
     """expression : expression PLUS expression
     | expression MINUS expression
     | expression MULTIPLY expression
+    | expression MATMUL expression
     | expression DIVIDE expression
     | expression POWER expression
     | expression MODULO expression
@@ -171,4 +174,13 @@ def p_error(p):
         raise SyntaxError(message)
 
 
-parser = yacc.yacc()
+_parser = yacc.yacc()
+
+
+class _Parser:
+    def parse(self, text, **kwargs):
+        kwargs.setdefault("lexer", _lexer)
+        return _parser.parse(text, **kwargs)
+
+
+parser = _Parser()
