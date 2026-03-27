@@ -9,6 +9,8 @@ from computor_v2.parsing.AST import (
     Equality,
     ComparisonNode,
     FunctionDefinitionNode,
+    QueryNode,
+    SolveNode,
 )
 from computor_v2.parsing.parser import parser
 
@@ -672,6 +674,25 @@ implicit_multiply_test_data = [
     ),
 ]
 
+query_solve_test_data = [
+    # QueryNode: expr = ?
+    ("x = ?", QueryNode(VariableNode("x"))),
+    ("a + 2 = ?", QueryNode(BinaryOperationNode(VariableNode("a"), "+", NumberNode(2.0)))),
+    ("42 = ?", QueryNode(NumberNode(42.0))),
+    # SolveNode: funcCall(var) = rhs ?
+    (
+        "f(x) = 0 ?",
+        SolveNode(FunctionCallNode("f", [VariableNode("x")]), NumberNode(0.0)),
+    ),
+    (
+        "f(x) = x + 1 ?",
+        SolveNode(
+            FunctionCallNode("f", [VariableNode("x")]),
+            BinaryOperationNode(VariableNode("x"), "+", NumberNode(1.0)),
+        ),
+    ),
+]
+
 unary_plus_test_data = [
     ("+1", NumberNode(1.0)),
     ("+x", VariableNode("x")),
@@ -800,6 +821,12 @@ def test_invalid_inputs(test_input):
 
 @pytest.mark.parametrize("test_input,expected", implicit_multiply_test_data)
 def test_implicit_multiply(test_input, expected):
+    result = parser.parse(test_input)
+    assert result == expected
+
+
+@pytest.mark.parametrize("test_input,expected", query_solve_test_data)
+def test_query_solve(test_input, expected):
     result = parser.parse(test_input)
     assert result == expected
 

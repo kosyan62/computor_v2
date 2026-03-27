@@ -41,7 +41,7 @@ class Node(ABC):
 
 
 class StatementNode(Node):
-    name = "Root"
+    name = "Statement"
 
     def __init__(self, left, operation, right):
         self.left = left
@@ -49,7 +49,7 @@ class StatementNode(Node):
         self.right = right
 
     def __repr__(self):
-        return f"Root({self.left} {self.operation} {self.right})"
+        return f"Statement({self.left} {self.operation} {self.right})"
 
     def __eq__(self, other):
         return False
@@ -191,6 +191,39 @@ class Equality(StatementNode):
     def __eq__(self, other):
         if isinstance(other, Equality):
             return self.left == other.left and self.right == other.right
+        return False
+
+
+class QueryNode(StatementNode):
+    """expr = ?  — вычислить/показать значение выражения"""
+
+    def __init__(self, expr):
+        self.expr = expr
+        super().__init__(expr, "=", "?")
+
+    def __repr__(self):
+        return f"Query({self.expr})"
+
+    def __eq__(self, other):
+        if isinstance(other, QueryNode):
+            return self.expr == other.expr
+        return False
+
+
+class SolveNode(StatementNode):
+    """funcCall(x) = rhs ?  — решить уравнение"""
+
+    def __init__(self, lhs, rhs):
+        self.lhs = lhs
+        self.rhs = rhs
+        super().__init__(lhs, "=?", rhs)
+
+    def __repr__(self):
+        return f"Solve({self.lhs} = {self.rhs})"
+
+    def __eq__(self, other):
+        if isinstance(other, SolveNode):
+            return self.lhs == other.lhs and self.rhs == other.rhs
         return False
 
 

@@ -28,6 +28,7 @@ tokens = (  # Operators
     "COMMA",
     "ASSIGNMENT",
     "SEMICOLON",
+    "QUERY",
 )
 
 # Operators
@@ -56,6 +57,7 @@ t_RSQBRACKET = r"\]"
 t_COMMA = r"\,"
 t_SEMICOLON = r"\;"
 t_ASSIGNMENT = r"\="
+t_QUERY = r"\?"
 
 t_ignore = " \t"
 
