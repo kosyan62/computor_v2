@@ -3,41 +3,31 @@ from abc import ABC
 
 
 class Node(ABC):
-    """
-    Represents a base abstract node with a name, value, and child nodes.
-
-    This abstract base class is designed to serve as a foundation for creating
-    various types of nodes, each with a unique name, a corresponding value, and an
-    optional list of child nodes. It enforces the implementation of specific
-    methods (`__repr__` and `__eq__`) in any concrete subclass, ensuring
-    consistent behavior. It also supports tree-structured data representation
-    through its `print_tree` method.
-
-    Attributes:
-        name (str): The name or identifier of the node.
-        value: The value or payload associated with the node.
-        children (list): A list of child nodes that are connected to the current
-            node. Defaults to an empty list.
-    """
 
     @abc.abstractmethod
-    def __init__(self, name, value, children=None):
+    def __init__(self, name, value):
         self.name = name
         self.value = value
-        self.children = children if children else []
 
     @abc.abstractmethod
-    def __repr__(self):
-        raise NotImplementedError
+    def __repr__(self): ...
 
     @abc.abstractmethod
-    def __eq__(self, other):
-        raise NotImplementedError
+    def __eq__(self, other): ...
 
-    def print_tree(self, indent=0):
-        print("  " * indent + str(self))
-        for child in self.children:
-            child.print_tree(indent + 1)
+    @abc.abstractmethod
+    def child_nodes(self) -> list: ...
+
+    def _label(self) -> str:
+        return repr(self)
+
+    def print_tree(self, _pfx="", _last=True):
+        connector = "└── " if _last else "├── "
+        print(_pfx + (connector if _pfx else "") + self._label())
+        children = self.child_nodes()
+        new_pfx = _pfx + ("    " if (_last or not _pfx) else "│   ")
+        for i, child in enumerate(children):
+            child.print_tree(new_pfx, i == len(children) - 1)
 
 
 class StatementNode(Node):
@@ -54,18 +44,20 @@ class StatementNode(Node):
     def __eq__(self, other):
         return False
 
-    def print_tree(self, indent=0):
-        # print tree for left and for right
-        print("Left part: ")
-        self.left.print_tree(indent)
-        print("Right part after operation " + self.operation + ": ")
-        self.right.print_tree(indent)
+    def child_nodes(self) -> list:
+        children = []
+        if isinstance(self.left, Node):
+            children.append(self.left)
+        if isinstance(self.right, Node):
+            children.append(self.right)
+        return children
+
 
 class UnaryMinusNode(Node):
     name = "UnaryMinus"
 
     def __init__(self, operand):
-        super().__init__(self.name, "-", [operand])
+        super().__init__(self.name, "-")
         self.operand = operand
 
     def __repr__(self):
@@ -76,12 +68,18 @@ class UnaryMinusNode(Node):
             return self.operand == other.operand
         return False
 
+    def child_nodes(self) -> list:
+        return [self.operand]
+
+    def _label(self) -> str:
+        return "[-]"
+
 
 class UnaryPlusNode(Node):
     name = "UnaryPlus"
 
     def __init__(self, operand):
-        super().__init__(self.name, "+", [operand])
+        super().__init__(self.name, "+")
         self.operand = operand
 
     def __repr__(self):
@@ -92,12 +90,18 @@ class UnaryPlusNode(Node):
             return self.operand == other.operand
         return False
 
+    def child_nodes(self) -> list:
+        return [self.operand]
+
+    def _label(self) -> str:
+        return "[+]"
+
 
 class BinaryOperationNode(Node):
     name = "BinaryOperation"
 
     def __init__(self, left, op, right):
-        super().__init__(self.name, op, [left, right])
+        super().__init__(self.name, op)
         self.left = left
         self.op = op
         self.right = right
@@ -114,6 +118,12 @@ class BinaryOperationNode(Node):
             )
         return False
 
+    def child_nodes(self) -> list:
+        return [self.left, self.right]
+
+    def _label(self) -> str:
+        return f"[{self.op}]"
+
 
 class NumberNode(Node):
     name = "Number"
@@ -128,6 +138,12 @@ class NumberNode(Node):
         if isinstance(other, NumberNode):
             return self.value == other.value
         return False
+
+    def child_nodes(self) -> list:
+        return []
+
+    def _label(self) -> str:
+        return self.value
 
 
 class VariableNode(Node):
@@ -144,25 +160,38 @@ class VariableNode(Node):
             return self.value == other.value
         return False
 
+    def child_nodes(self) -> list:
+        return []
+
+    def _label(self) -> str:
+        return self.value
+
 
 class FunctionCallNode(Node):
     name = "FunctionCall"
 
-    def __init__(self, function_name, args):
-        super().__init__(self.name, function_name)
+    def __init__(self, func_name, args):
+        super().__init__(self.name, func_name)
+        self.func_name = func_name
         self.args = args
 
     def __repr__(self):
-        return f"FunctionCall({self.value}:{self.args})"
+        return f"FunctionCall({self.func_name}:{self.args})"
 
     def __eq__(self, other):
         if isinstance(other, FunctionCallNode):
             return (
-                self.value == other.value
+                self.func_name == other.func_name
                 and len(self.args) == len(other.args)
                 and all(a == b for a, b in zip(self.args, other.args))
             )
         return False
+
+    def child_nodes(self) -> list:
+        return self.args
+
+    def _label(self) -> str:
+        return f"call {self.func_name}"
 
 
 class MatrixNode(Node):
@@ -178,6 +207,14 @@ class MatrixNode(Node):
         if isinstance(other, MatrixNode):
             return self.value == other.value
         return False
+
+    def child_nodes(self) -> list:
+        return [node for row in self.value for node in row]
+
+    def _label(self) -> str:
+        rows = len(self.value)
+        cols = max((len(r) for r in self.value), default=0)
+        return f"Matrix[{rows}×{cols}]"
 
 
 class FunctionDefinitionNode(StatementNode):
@@ -208,6 +245,13 @@ class FunctionDefinitionNode(StatementNode):
             )
         return False
 
+    def child_nodes(self) -> list:
+        return self.args + [self.expression]
+
+    def _label(self) -> str:
+        params = ", ".join(a.value for a in self.args)
+        return f"def {self.name}({params})"
+
 
 class Equality(StatementNode):
     operation = "="
@@ -225,9 +269,14 @@ class Equality(StatementNode):
             return self.left == other.left and self.right == other.right
         return False
 
+    def _label(self) -> str:
+        if isinstance(self.left, VariableNode):
+            return f"= (assign {self.left.value})"
+        return "= (equation)"
+
 
 class QueryNode(StatementNode):
-    """expr = ? — вычислить/показать значение выражения"""
+    """expr = ?  — вычислить/показать значение выражения"""
 
     def __init__(self, expr):
         self.expr = expr
@@ -241,9 +290,15 @@ class QueryNode(StatementNode):
             return self.expr == other.expr
         return False
 
+    def child_nodes(self) -> list:
+        return [self.expr]
+
+    def _label(self) -> str:
+        return "? (query)"
+
 
 class SolveNode(StatementNode):
-    """funcCall(x) = rhs ?  — решить уравнение"""
+    """lhs = rhs ?  — решить уравнение"""
 
     def __init__(self, lhs, rhs):
         self.lhs = lhs
@@ -257,6 +312,12 @@ class SolveNode(StatementNode):
         if isinstance(other, SolveNode):
             return self.lhs == other.lhs and self.rhs == other.rhs
         return False
+
+    def child_nodes(self) -> list:
+        return [self.lhs, self.rhs]
+
+    def _label(self) -> str:
+        return "? (solve)"
 
 
 class ComparisonNode(StatementNode):
@@ -272,8 +333,11 @@ class ComparisonNode(StatementNode):
     def __eq__(self, other):
         if isinstance(other, ComparisonNode):
             return (
-                    self.left == other.left
-                    and self.operator == other.operator
-                    and self.right == other.right
+                self.left == other.left
+                and self.operator == other.operator
+                and self.right == other.right
             )
         return False
+
+    def _label(self) -> str:
+        return f"[{self.operator}]"
