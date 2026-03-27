@@ -61,6 +61,38 @@ class StatementNode(Node):
         print("Right part after operation " + self.operation + ": ")
         self.right.print_tree(indent)
 
+class UnaryMinusNode(Node):
+    name = "UnaryMinus"
+
+    def __init__(self, operand):
+        super().__init__(self.name, "-", [operand])
+        self.operand = operand
+
+    def __repr__(self):
+        return f"(-{self.operand})"
+
+    def __eq__(self, other):
+        if isinstance(other, UnaryMinusNode):
+            return self.operand == other.operand
+        return False
+
+
+class UnaryPlusNode(Node):
+    name = "UnaryPlus"
+
+    def __init__(self, operand):
+        super().__init__(self.name, "+", [operand])
+        self.operand = operand
+
+    def __repr__(self):
+        return f"(+{self.operand})"
+
+    def __eq__(self, other):
+        if isinstance(other, UnaryPlusNode):
+            return self.operand == other.operand
+        return False
+
+
 class BinaryOperationNode(Node):
     name = "BinaryOperation"
 
@@ -86,7 +118,7 @@ class BinaryOperationNode(Node):
 class NumberNode(Node):
     name = "Number"
 
-    def __init__(self, value):
+    def __init__(self, value: str):
         super().__init__(self.name, value)
 
     def __repr__(self):
@@ -195,7 +227,7 @@ class Equality(StatementNode):
 
 
 class QueryNode(StatementNode):
-    """expr = ?  — вычислить/показать значение выражения"""
+    """expr = ? — вычислить/показать значение выражения"""
 
     def __init__(self, expr):
         self.expr = expr

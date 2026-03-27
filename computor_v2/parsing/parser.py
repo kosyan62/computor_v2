@@ -1,6 +1,8 @@
 from .AST import (
     NumberNode,
     VariableNode,
+    UnaryMinusNode,
+    UnaryPlusNode,
     BinaryOperationNode,
     FunctionCallNode,
     FunctionDefinitionNode,
@@ -67,11 +69,17 @@ def p_query(p):
 def p_solve(p):
     """statement : ID LPAREN expressions_list RPAREN ASSIGNMENT expression QUERY
     | ID LPAREN RPAREN ASSIGNMENT expression QUERY
+    | ID ASSIGNMENT expression QUERY
+    | expression ASSIGNMENT expression QUERY
     """
     if len(p) == 8:
         p[0] = SolveNode(FunctionCallNode(p[1], p[3]), p[6])
-    else:
+    elif len(p) == 7:
         p[0] = SolveNode(FunctionCallNode(p[1], []), p[5])
+    elif len(p) == 5 and isinstance(p[1], str):
+        p[0] = SolveNode(VariableNode(p[1]), p[3])
+    else:
+        p[0] = SolveNode(p[1], p[3])
 
 
 # --- Functions ---
@@ -97,11 +105,58 @@ def p_function_call(p):
         p[0] = FunctionCallNode(p[1], [])
 
 
+# --- Atoms (primaries) and power ---
+
+def p_atom_number(p):
+    """atom : NUMBER"""
+    p[0] = NumberNode(p[1])
+
+
+def p_atom_variable(p):
+    """atom : ID"""
+    p[0] = VariableNode(p[1])
+
+
+def p_atom_group(p):
+    """atom : LPAREN expression RPAREN"""
+    p[0] = p[2]
+
+
+def p_atom_function_call(p):
+    """atom : function_call"""
+    p[0] = p[1]
+
+
+def p_atom_matrix(p):
+    """atom : matrix"""
+    p[0] = p[1]
+
+
+def p_atom_power(p):
+    """atom : atom POWER power_rhs"""
+    p[0] = BinaryOperationNode(p[1], p[2], p[3])
+
+
+def p_power_rhs_atom(p):
+    """power_rhs : atom"""
+    p[0] = p[1]
+
+
+def p_power_rhs_uminus(p):
+    """power_rhs : MINUS atom %prec UMINUS"""
+    p[0] = UnaryMinusNode(p[2])
+
+
+def p_power_rhs_uplus(p):
+    """power_rhs : PLUS atom %prec UMINUS"""
+    p[0] = UnaryPlusNode(p[2])
+
+
 # --- Expressions ---
 
-def p_expression_group(p):
-    """expression : LPAREN expression RPAREN"""
-    p[0] = p[2]
+def p_expression_atom(p):
+    """expression : atom"""
+    p[0] = p[1]
 
 
 def p_expression_binary(p):
@@ -110,7 +165,6 @@ def p_expression_binary(p):
     | expression MULTIPLY expression
     | expression MATMUL expression
     | expression DIVIDE expression
-    | expression POWER expression
     | expression MODULO expression
     | expression FLOORDIV expression
     """
@@ -118,33 +172,13 @@ def p_expression_binary(p):
 
 
 def p_expression_uminus(p):
-    """expression : MINUS expression %prec UMINUS"""
-    p[0] = BinaryOperationNode(NumberNode(-1.0), "*", p[2])
+    """expression : MINUS atom %prec UMINUS"""
+    p[0] = UnaryMinusNode(p[2])
 
 
 def p_expression_uplus(p):
-    """expression : PLUS expression %prec UMINUS"""
-    p[0] = p[2]
-
-
-def p_expression_function_call(p):
-    """expression : function_call"""
-    p[0] = p[1]
-
-
-def p_expression_number(p):
-    """expression : NUMBER"""
-    p[0] = NumberNode(p[1])
-
-
-def p_expression_variable(p):
-    """expression : ID"""
-    p[0] = VariableNode(p[1])
-
-
-def p_expression_matrix(p):
-    """expression : matrix"""
-    p[0] = p[1]
+    """expression : PLUS atom %prec UMINUS"""
+    p[0] = UnaryPlusNode(p[2])
 
 
 # --- Matrix ---
