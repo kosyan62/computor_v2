@@ -1,5 +1,5 @@
 import argparse
-from computorv2 import ComputorV2
+from computor_v2.computorv2 import ComputorV2
 
 
 def parse_args() -> argparse.Namespace:
