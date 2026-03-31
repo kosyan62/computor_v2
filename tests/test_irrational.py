@@ -1,13 +1,13 @@
 import pytest
 from computor_v2.types import Rational, Complex, Irrational
-from computor_v2.computor_math import sqrt
-from computor_v2.pure_math import factor_sqrt
+from computor_v2.calculus.typed import sqrt
+from computor_v2.calculus.pure import factor_sqrt
 
 R = Rational
 
 
 # ---------------------------------------------------------------------------
-# pure_math.factor_sqrt
+# calculus.pure.factor_sqrt
 # ---------------------------------------------------------------------------
 
 class TestFactorSqrt:
@@ -33,7 +33,7 @@ class TestFactorSqrt:
 
 
 # ---------------------------------------------------------------------------
-# sqrt (computor_math)
+# calculus.typed.sqrt
 # ---------------------------------------------------------------------------
 
 class TestSqrt:
@@ -127,7 +127,7 @@ class TestIrrationalConstruction:
 
     def test_negative_radicand_perfect_square_coeff(self):
         # √(-4) = i * 2 * √1... but radicand=1 means coeff*√1 = coeff, still Irrational
-        # Actually √(-4) is better handled via computor_math.sqrt → Complex
+        # Actually √(-4) is better handled via calculus.typed.sqrt → Complex
         # Here we just verify normalization: coeff absorbs i and factor
         ir = Irrational(R(0), R(1), R(-4))
         assert ir.radicand == R(1)

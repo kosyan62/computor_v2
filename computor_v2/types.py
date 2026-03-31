@@ -1,6 +1,6 @@
 from __future__ import annotations
 from abc import ABC
-from computor_v2.pure_math import gcd, factor_sqrt
+from computor_v2.calculus.pure import gcd, factor_sqrt
 
 
 class Scalar(ABC):
