@@ -1,20 +1,34 @@
-from computor_v2.parsing.AST import FunctionCallNode, NumberNode
 from computor_v2.parsing.parser import parser
-from logging import getLogger, StreamHandler
+from computor_v2.store import Store
+from computor_v2.interpreter import Interpreter
 
-logger = getLogger(__name__)
-logger.addHandler(StreamHandler())
+R"""
+Этот файл — для ручной отладки. Запуск:
+    pytest tests/oneshot_test.py -s
+"""
+
+
+def evaluate(expr: str, store: Store = None):
+    store = store or Store()
+    node = parser.parse(expr)
+    return Interpreter(store).evaluate(node)
 
 
 def test_debug():
-    """This test can be used to debug parser"""
+    store = Store()
+    interp = Interpreter(store)
 
-    test_data = (
-        "max(1, 2, 3)",
-        FunctionCallNode(
-            "max",
-            [NumberNode(1.0), NumberNode(2.0), NumberNode(3.0)],
-        ),
-    )
-    ret = parser.parse(test_data[0])
-    assert ret == test_data[1]
+    cases = [
+        "2 + 3",
+        "10 / 4",
+        "2 ^ 8",
+        "sqrt(9)",
+        "sqrt(2)",
+        "2 * i",
+        "i * i",
+    ]
+
+    for expr in cases:
+        node = parser.parse(expr)
+        result = interp.evaluate(node)
+        print(f"  {expr!r:20} => {result}")

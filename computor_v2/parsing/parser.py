@@ -61,8 +61,15 @@ def p_unequality(p):
 def p_query(p):
     """statement : ID ASSIGNMENT QUERY
     | expression ASSIGNMENT QUERY
+    | ID LPAREN expressions_list RPAREN ASSIGNMENT QUERY
+    | ID LPAREN RPAREN ASSIGNMENT QUERY
     """
-    expr = VariableNode(p[1]) if isinstance(p[1], str) else p[1]
+    if len(p) == 7:
+        expr = FunctionCallNode(p[1], p[3])
+    elif len(p) == 6:
+        expr = FunctionCallNode(p[1], [])
+    else:
+        expr = VariableNode(p[1]) if isinstance(p[1], str) else p[1]
     p[0] = QueryNode(expr)
 
 

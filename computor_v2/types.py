@@ -547,7 +547,7 @@ class Function:
 
     def call(self, arg, evaluator):
         """Evaluate body with param bound to arg."""
-        return evaluator.evaluate_with(self.body, {self.param: arg})
+        return evaluator.evaluate(self.body, {self.param: arg})
 
     def __repr__(self):
         return f"Function({self.param} → {self.body})"

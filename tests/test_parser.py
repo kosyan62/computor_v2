@@ -419,6 +419,9 @@ query_solve_test_data = [
     ("x = ?", QueryNode(VariableNode("x"))),
     ("a + 2 = ?", QueryNode(BinaryOperationNode(VariableNode("a"), "+", N("2")))),
     ("42 = ?", QueryNode(N("42"))),
+    ("sqrt(9) = ?", QueryNode(FunctionCallNode("sqrt", [N("9")]))),
+    ("f(x) = ?", QueryNode(FunctionCallNode("f", [VariableNode("x")]))),
+    ("f() = ?", QueryNode(FunctionCallNode("f", []))),
     # SolveNode: f(x) = val ?
     ("f(x) = 0 ?", SolveNode(FunctionCallNode("f", [VariableNode("x")]), N("0"))),
     (
