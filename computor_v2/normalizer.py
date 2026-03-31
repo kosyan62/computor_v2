@@ -1,0 +1,152 @@
+from __future__ import annotations
+from computor_v2.parsing.AST import (
+    Node, NumberNode, VariableNode, UnaryMinusNode, UnaryPlusNode,
+    BinaryOperationNode, FunctionCallNode,
+)
+from computor_v2.types import Rational as R
+from computor_v2.store import Store
+from computor_v2.errors import ComputorSolverError, ComputorNameError
+
+
+class Normalizer:
+    def __init__(self, store: Store):
+        self._store = store
+
+    def simplify(self, node: Node, param: str) -> Node:
+        """Fold pure-numeric sub-expressions, leave param and store variables as-is."""
+        if self._is_literal(node):
+            val = self._eval_literal(node)
+            return NumberNode(str(val) if val.denominator == 1 else f"{val.numerator}/{val.denominator}")
+
+        if isinstance(node, UnaryMinusNode):
+            inner = self.simplify(node.operand, param)
+            return UnaryMinusNode(inner)
+
+        if isinstance(node, UnaryPlusNode):
+            return self.simplify(node.operand, param)
+
+        if isinstance(node, BinaryOperationNode):
+            left = self.simplify(node.left, param)
+            right = self.simplify(node.right, param)
+            return BinaryOperationNode(left, node.op, right)
+
+        return node
+
+    def _is_literal(self, node: Node) -> bool:
+        """True if node contains only NumberNodes and operations (no variables)."""
+        if isinstance(node, NumberNode):
+            return True
+        if isinstance(node, (VariableNode, FunctionCallNode)):
+            return False
+        if isinstance(node, (UnaryMinusNode, UnaryPlusNode)):
+            return self._is_literal(node.operand)
+        if isinstance(node, BinaryOperationNode):
+            return self._is_literal(node.left) and self._is_literal(node.right)
+        return False
+
+    def _eval_literal(self, node: Node) -> Rational:
+        """Evaluate a literal-only node to Rational."""
+        if isinstance(node, NumberNode):
+            return Rational.from_str(str(node.value))
+        if isinstance(node, UnaryMinusNode):
+            return -self._eval_literal(node.operand)
+        if isinstance(node, UnaryPlusNode):
+            return self._eval_literal(node.operand)
+        if isinstance(node, BinaryOperationNode):
+            left = self._eval_literal(node.left)
+            right = self._eval_literal(node.right)
+            match node.op:
+                case "+":  return left + right
+                case "-":  return left - right
+                case "*":  return left * right
+                case "/":  return left / right
+                case "^":  return left ** right
+                case "%":  return left % right
+                case "//": return left // right
+        raise ComputorSolverError(f"Cannot evaluate literal node: {node}")
+
+    def to_polynomial(self, node: Node, var: str) -> dict[int, Rational]:
+        """Convert AST with one free variable to polynomial coefficient dict."""
+        poly = self._to_poly(node, var.lower())
+        return {k: v for k, v in poly.items() if v != R(0)}
+
+    def _to_poly(self, node: Node, var: str) -> dict[int, R]:
+        if isinstance(node, NumberNode):
+            return {0: Rational.from_str(str(node.value))}
+
+        if isinstance(node, VariableNode):
+            key = node.value.lower()
+            if key == var:
+                return {1: R(1)}
+            # look up in store — must be Rational coefficient
+            try:
+                val = self._store.get(node.value)
+            except ComputorNameError:
+                raise ComputorSolverError(
+                    f"Cannot solve: '{node.value}' is undefined"
+                )
+            if not isinstance(val, Rational):
+                raise ComputorSolverError(
+                    f"Cannot use non-rational variable '{node.value}' in polynomial"
+                )
+            return {0: val}
+
+        if isinstance(node, UnaryMinusNode):
+            return {k: -v for k, v in self._to_poly(node.operand, var).items()}
+
+        if isinstance(node, UnaryPlusNode):
+            return self._to_poly(node.operand, var)
+
+        if isinstance(node, BinaryOperationNode):
+            return self._eval_binop_poly(node, var)
+
+        raise ComputorSolverError(
+            f"Cannot convert {type(node).__name__} to polynomial"
+        )
+
+    def _eval_binop_poly(self, node: BinaryOperationNode, var: str) -> dict[int, R]:
+        match node.op:
+            case "+":
+                return _poly_add(self._to_poly(node.left, var), self._to_poly(node.right, var))
+            case "-":
+                return _poly_sub(self._to_poly(node.left, var), self._to_poly(node.right, var))
+            case "*":
+                return _poly_mul(self._to_poly(node.left, var), self._to_poly(node.right, var))
+            case "^":
+                base = self._to_poly(node.left, var)
+                exp_poly = self._to_poly(node.right, var)
+                if set(exp_poly.keys()) - {0}:
+                    raise ComputorSolverError("Exponent must be constant in polynomial")
+                exp = exp_poly.get(0, R(0))
+                if exp.denominator != 1 or exp.numerator < 0:
+                    raise ComputorSolverError("Exponent must be a non-negative integer")
+                return _poly_pow(base, exp.numerator)
+            case _:
+                raise ComputorSolverError(f"Operator '{node.op}' not supported in polynomial")
+
+
+def _poly_add(a: dict, b: dict) -> dict:
+    result = dict(a)
+    for k, v in b.items():
+        result[k] = result.get(k, R(0)) + v
+    return result
+
+
+def _poly_sub(a: dict, b: dict) -> dict:
+    return _poly_add(a, {k: -v for k, v in b.items()})
+
+
+def _poly_mul(a: dict, b: dict) -> dict:
+    result = {}
+    for ka, va in a.items():
+        for kb, vb in b.items():
+            k = ka + kb
+            result[k] = result.get(k, R(0)) + va * vb
+    return result
+
+
+def _poly_pow(poly: dict, n: int) -> dict:
+    result = {0: R(1)}
+    for _ in range(n):
+        result = _poly_mul(result, poly)
+    return result
