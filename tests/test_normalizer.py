@@ -177,7 +177,7 @@ class TestToPolynomial:
         assert n.to_polynomial(binop(var("x"), "^", num(0)), "x") == {0: R(1)}
 
     def test_cubic_raises_not_in_normalizer(self):
-        # x^3 поддерживается нормализатором — solver потом решит degree
+    # x^3 поддерживается нормализатором — solver потом решит degree
         n = make_normalizer()
         expr = binop(var("x"), "^", num(3))
         assert n.to_polynomial(expr, "x") == {3: R(1)}

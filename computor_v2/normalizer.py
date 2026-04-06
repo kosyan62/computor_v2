@@ -3,9 +3,11 @@ from computor_v2.parsing.AST import (
     Node, NumberNode, VariableNode, UnaryMinusNode, UnaryPlusNode,
     BinaryOperationNode, FunctionCallNode,
 )
-from computor_v2.types import Rational as R
+from computor_v2.types import Rational
+R = Rational
 from computor_v2.store import Store
 from computor_v2.errors import ComputorSolverError, ComputorNameError
+from computor_v2.polynomial import Polynomial
 
 
 class Normalizer:
@@ -65,10 +67,10 @@ class Normalizer:
                 case "//": return left // right
         raise ComputorSolverError(f"Cannot evaluate literal node: {node}")
 
-    def to_polynomial(self, node: Node, var: str) -> dict[int, Rational]:
-        """Convert AST with one free variable to polynomial coefficient dict."""
-        poly = self._to_poly(node, var.lower())
-        return {k: v for k, v in poly.items() if v != R(0)}
+    def to_polynomial(self, node: Node, var: str) -> Polynomial:
+        """Convert AST with one free variable to Polynomial."""
+        coeffs = self._to_poly(node, var.lower())
+        return Polynomial(coeffs)
 
     def _to_poly(self, node: Node, var: str) -> dict[int, R]:
         if isinstance(node, NumberNode):
