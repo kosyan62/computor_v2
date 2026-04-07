@@ -9,6 +9,30 @@ def parse_args() -> argparse.Namespace:
     return argument_parser.parse_args()
 
 
+def run_file(computor_v2: ComputorV2, path: str, debug: bool = False) -> None:
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if debug:
+                print(f">> {line}")
+            computor_v2.add_input(line)
+
+
+def run_repl(computor_v2: ComputorV2) -> None:
+    while True:
+        try:
+            user_input = input("> ")
+        except (KeyboardInterrupt, EOFError):
+            print("\nBye!")
+            break
+        if user_input == "exit":
+            print("\nSee you later!")
+            break
+        computor_v2.add_input(user_input)
+
+
 def main():
     args = parse_args()
     computor_v2 = ComputorV2()
@@ -16,19 +40,9 @@ def main():
         print("Debug mode is on")
         print(f"Args: {args}")
     if args.file:
-        # TODO handle single file input
-        print(args.file)
+        run_file(computor_v2, args.file, debug=args.debug)
     else:
-        while True:
-            try:
-                user_input = input("> ")
-            except (KeyboardInterrupt, EOFError):
-                print("\nBye!")
-                break
-            if user_input == "exit":
-                print("\nSee you later!")
-                break
-            computor_v2.add_input(user_input)
+        run_repl(computor_v2)
 
 
 if __name__ == "__main__":

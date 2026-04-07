@@ -7,6 +7,26 @@ from computor_v2.errors import ComputorSolverError
 R = Rational
 
 
+def _sort_key(val) -> tuple:
+    """Numeric sort key for solutions: (re, im) approximation."""
+    from computor_v2.types import Rational, Complex, Irrational
+    if isinstance(val, Rational):
+        return (val.numerator / val.denominator, 0)
+    if isinstance(val, Complex):
+        return (val.re.numerator / val.re.denominator, val.im.numerator / val.im.denominator)
+    if isinstance(val, Irrational):
+        import math
+        r = val.radicand.numerator / val.radicand.denominator
+        n = val.number.numerator / val.number.denominator if isinstance(val.number, Rational) else 0
+        if isinstance(val.coeff, Complex):
+            # Complex irrational: sort by (re_approx, im_approx)
+            im_c = val.coeff.im.numerator / val.coeff.im.denominator
+            return (n, im_c * math.sqrt(r))
+        c = val.coeff.numerator / val.coeff.denominator
+        return (n + c * math.sqrt(r), 0)
+    return (0, 0)
+
+
 class SolveResult:
     def __init__(self, solutions: list, count: int | float):
         self.solutions = solutions
@@ -80,4 +100,4 @@ class QuadraticSolver:
         sqrt_d = calc_sqrt(d)
         x1 = (-b + sqrt_d) / (R(2) * a)
         x2 = (-b - sqrt_d) / (R(2) * a)
-        return SolveResult([x1, x2], 2)
+        return SolveResult(sorted([x1, x2], key=_sort_key), 2)
