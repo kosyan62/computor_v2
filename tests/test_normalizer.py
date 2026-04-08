@@ -234,3 +234,21 @@ class TestToPolynomial:
         n = make_normalizer()
         expr = binop(binop(var("x"), "^", num(2)), "*", binop(var("x"), "+", num(1)))
         assert n.to_polynomial(expr, "x") == {3: R(1), 2: R(1)}
+
+class TestToPolynomialForSolve:
+    def test_zero_rhs(self):
+        n = make_normalizer()
+        # body = x^2 + 2x + 1, rhs = R(0) → same polynomial
+        body = binop(
+            binop(binop(var("x"), "^", num(2)), "+", binop(num(2), "*", var("x"))),
+            "+", num(1)
+        )
+        poly = n.to_polynomial_for_solve(body, R(0), "x")
+        assert poly == {2: R(1), 1: R(2), 0: R(1)}
+
+    def test_nonzero_rhs(self):
+        n = make_normalizer()
+        # body = x + 3, rhs = R(5) → x + 3 - 5 = x - 2
+        body = binop(var("x"), "+", num(3))
+        poly = n.to_polynomial_for_solve(body, R(5), "x")
+        assert poly == {1: R(1), 0: R(-2)}

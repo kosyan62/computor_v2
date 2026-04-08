@@ -72,6 +72,11 @@ class Normalizer:
         coeffs = self._to_poly(node, var.lower())
         return Polynomial(coeffs)
 
+    def to_polynomial_for_solve(self, body: Node, rhs_value, param: str) -> Polynomial:
+        """Return Polynomial for (body - rhs_value), used by Dispatcher._handle_solve."""
+        node = BinaryOperationNode(body, "-", NumberNode(str(rhs_value)))
+        return self.to_polynomial(node, param)
+
     def _to_poly(self, node: Node, var: str) -> dict[int, R]:
         if isinstance(node, NumberNode):
             return {0: Rational.from_str(str(node.value))}
