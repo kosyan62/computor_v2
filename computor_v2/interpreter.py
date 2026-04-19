@@ -6,8 +6,8 @@ from computor_v2.parsing.AST import (
 from computor_v2.types import Rational, Matrix, Function
 from computor_v2.store import Store
 from computor_v2.errors import (
-    ComputorNameError, ComputorTypeError, ComputorArgumentError,
-    ComputorRecursionError,
+    ComputorTypeError, ComputorArgumentError,
+    ComputorRecursionError, ComputorValueError,
 )
 
 _OPS = {"+", "-", "*", "/", "%", "//", "^", "**"}
@@ -73,6 +73,8 @@ class Interpreter:
                 case "**": return left @ right
         except TypeError as e:
             raise ComputorTypeError(str(e)) from e
+        except ZeroDivisionError as e:
+            raise ComputorValueError(str(e)) from e
 
     def _eval_funcall(self, node: FunctionCallNode, bindings: dict):
         func = self._store.get(node.func_name)

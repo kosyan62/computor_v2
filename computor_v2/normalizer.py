@@ -15,8 +15,8 @@ class Normalizer:
         self._store = store
 
     def simplify(self, node: Node, param: str) -> Node:
-        """Fold pure-numeric sub-expressions, leave param and store variables as-is."""
-        if self._is_literal(node):
+        """Fold numeric sub-expressions and Rational store vars, leave param as-is."""
+        if self._is_literal(node, param):
             val = self._eval_literal(node)
             return NumberNode(str(val) if val.denominator == 1 else f"{val.numerator}/{val.denominator}")
 
@@ -34,22 +34,33 @@ class Normalizer:
 
         return node
 
-    def _is_literal(self, node: Node) -> bool:
-        """True if node contains only NumberNodes and operations (no variables)."""
+    def _is_literal(self, node: Node, param: str = "") -> bool:
+        """True if node contains only numbers, ops, and Rational store variables (not param)."""
         if isinstance(node, NumberNode):
             return True
-        if isinstance(node, (VariableNode, FunctionCallNode)):
+        if isinstance(node, VariableNode):
+            if node.value.lower() == param.lower():
+                return False
+            try:
+                val = self._store.get(node.value)
+                return isinstance(val, R)
+            except Exception:
+                return False
+        if isinstance(node, FunctionCallNode):
             return False
         if isinstance(node, (UnaryMinusNode, UnaryPlusNode)):
-            return self._is_literal(node.operand)
+            return self._is_literal(node.operand, param)
         if isinstance(node, BinaryOperationNode):
-            return self._is_literal(node.left) and self._is_literal(node.right)
+            return self._is_literal(node.left, param) and self._is_literal(node.right, param)
         return False
 
     def _eval_literal(self, node: Node) -> Rational:
         """Evaluate a literal-only node to Rational."""
         if isinstance(node, NumberNode):
             return Rational.from_str(str(node.value))
+        if isinstance(node, VariableNode):
+            val = self._store.get(node.value)
+            return val  # guaranteed Rational by _is_literal
         if isinstance(node, UnaryMinusNode):
             return -self._eval_literal(node.operand)
         if isinstance(node, UnaryPlusNode):
@@ -74,6 +85,10 @@ class Normalizer:
 
     def to_polynomial_for_solve(self, body: Node, rhs_value, param: str) -> Polynomial:
         """Return Polynomial for (body - rhs_value), used by Dispatcher._handle_solve."""
+        if not isinstance(rhs_value, R):
+            raise ComputorSolverError(
+                f"Right-hand side must be a rational number, got {type(rhs_value).__name__}"
+            )
         node = BinaryOperationNode(body, "-", NumberNode(str(rhs_value)))
         return self.to_polynomial(node, param)
 
