@@ -19,10 +19,10 @@ def test_terminating_decimal():
 
 
 def test_non_terminating_fraction():
-    assert fmt_rational(R(1, 3)) == "1/3"
-    assert fmt_rational(R(7, 12)) == "7/12"
-    assert fmt_rational(R(-2, 3)) == "-2/3"
-    assert fmt_rational(R(1, 6)) == "1/6"
+    assert fmt_rational(R(1, 3)) == "0.333333333"
+    assert fmt_rational(R(7, 12)) == "0.583333333"
+    assert fmt_rational(R(-2, 3)) == "-0.666666667"
+    assert fmt_rational(R(1, 6)) == "0.166666667"
 
 
 def test_complex_full():
@@ -47,7 +47,7 @@ def test_complex_imag_only():
 
 
 def test_complex_rational_parts():
-    assert fmt_complex(Complex(R(1, 2), R(1, 3))) == "0.5 + 1/3i"
+    assert fmt_complex(Complex(R(1, 2), R(1, 3))) == "0.5 + 0.333333333i"
     assert fmt_complex(Complex(R(3), R(-1, 2))) == "3 - 0.5i"
 
 
@@ -116,7 +116,7 @@ def test_matrix_single_element():
 
 def test_matrix_with_fractions():
     m = Matrix([[R(1, 2), R(1, 3)]])
-    assert fmt_matrix(m) == "[ 0.5 , 1/3 ]"
+    assert fmt_matrix(m) == "[ 0.5 , 0.333333333 ]"
 
 
 # Task 6: fmt_ast with precedence
@@ -209,7 +209,7 @@ from computor_v2.types import Irrational
 
 def test_fmt_dispatch_rational():
     assert fmt(R(3)) == "3"
-    assert fmt(R(1, 3)) == "1/3"
+    assert fmt(R(1, 3)) == "0.333333333"
 
 
 def test_fmt_dispatch_complex():
@@ -239,14 +239,14 @@ def test_solve_one_real():
     poly = Polynomial({2: R(1), 1: R(2), 0: R(1)})
     result = SolveResult([R(-1)], 1)
     out = fmt_solve(result, poly, "x")
-    assert out == "x^2 + 2x + 1 = 0\nOne solution in R:\n-1"
+    assert out == "x^2 + 2x + 1 = 0\nOne solution in ℝ:\n-1"
 
 
 def test_solve_two_real():
     poly = Polynomial({2: R(1), 1: R(-5), 0: R(6)})
     result = SolveResult([R(2), R(3)], 2)
     out = fmt_solve(result, poly, "x")
-    assert out == "x^2 - 5x + 6 = 0\nTwo solutions in R:\n2\n3"
+    assert out == "x^2 - 5x + 6 = 0\nTwo solutions in ℝ:\n2\n3"
 
 
 def test_solve_two_complex():
@@ -256,5 +256,5 @@ def test_solve_two_complex():
     sol2 = Irrational(R(3, 10), Complex(R(0), R(1, 10)), R(31))
     result = SolveResult([sol1, sol2], 2)
     out = fmt_solve(result, poly, "x")
-    assert "Two solutions in C:" in out
+    assert "Two solutions in ℂ:" in out
     assert "5x^2 - 3x + 2 = 0" in out

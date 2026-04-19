@@ -192,6 +192,5 @@ class TestBuiltins:
     def test_abs_negative(self):
         assert BUILTINS["abs"].call(R(-5)) == R(5)
 
-    def test_abs_complex_raises(self):
-        with pytest.raises(ComputorTypeError):
-            BUILTINS["abs"].call(Complex(R(3), R(4)))
+    def test_abs_complex(self):
+        assert BUILTINS["abs"].call(Complex(R(3), R(4))) == R(5)

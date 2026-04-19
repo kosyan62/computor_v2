@@ -15,6 +15,10 @@ class TestBuiltins:
     def test_abs_rational(self):
         assert BUILTINS["abs"].call(Rational(-5)) == Rational(5)
 
-    def test_abs_complex_raises(self):
-        with pytest.raises(ComputorTypeError):
-            BUILTINS["abs"].call(Complex(Rational(3), Rational(4)))
+    def test_abs_complex(self):
+        # |3 + 4i| = 5
+        assert BUILTINS["abs"].call(Complex(Rational(3), Rational(4))) == Rational(5)
+
+    def test_abs_pure_imaginary(self):
+        # |5i| = 5
+        assert BUILTINS["abs"].call(Complex(Rational(0), Rational(5))) == Rational(5)
