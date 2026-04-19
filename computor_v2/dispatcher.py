@@ -1,14 +1,15 @@
 from __future__ import annotations
 from computor_v2.parsing.AST import (
     Node, Equality, FunctionDefinitionNode, QueryNode, SolveNode,
-    VariableNode, FunctionCallNode,
+    VariableNode, FunctionCallNode, BinaryOperationNode,
+    UnaryMinusNode, UnaryPlusNode, NumberNode,
 )
 from computor_v2.store import Store
 from computor_v2.interpreter import Interpreter
 from computor_v2.normalizer import Normalizer
 from computor_v2.solver import PolynomialSolver
 from computor_v2.types import Function
-from computor_v2.errors import ComputorTypeError
+from computor_v2.errors import ComputorTypeError, ComputorSolverError
 from computor_v2.formatter import fmt, fmt_ast, fmt_solve
 
 
@@ -33,6 +34,11 @@ class Dispatcher:
         return fmt(value)
 
     def _handle_func_def(self, node: FunctionDefinitionNode) -> str:
+        from computor_v2.errors import ComputorArgumentError
+        if not node.args:
+            raise ComputorArgumentError("Function must have exactly one parameter")
+        if len(node.args) > 1:
+            raise ComputorArgumentError("Function must have exactly one parameter")
         param = node.args[0].value
         self.store.set(node.name, Function(param, node.expression))
         simplified = Normalizer(self.store).simplify(node.expression, param)
@@ -47,8 +53,11 @@ class Dispatcher:
         return fmt(value)
 
     def _handle_solve(self, node: SolveNode) -> str:
-        if not isinstance(node.lhs, FunctionCallNode):
-            raise ComputorTypeError("Solve requires a function call on the left side")
+        if isinstance(node.lhs, FunctionCallNode):
+            return self._solve_function(node)
+        return self._solve_expression(node)
+
+    def _solve_function(self, node: SolveNode) -> str:
         func_name = node.lhs.func_name
         param = node.lhs.args[0].value if node.lhs.args else "x"
         func = self.store.get(func_name)
@@ -58,3 +67,39 @@ class Dispatcher:
         poly = Normalizer(self.store).to_polynomial_for_solve(func.body, rhs_value, param)
         result = PolynomialSolver.solve(poly)
         return fmt_solve(result, poly, var=param)
+
+    def _solve_expression(self, node: SolveNode) -> str:
+        var = self._find_free_variable(node.lhs)
+        if var is None:
+            raise ComputorSolverError("No free variable found in equation to solve")
+        rhs_value = Interpreter(self.store).evaluate(node.rhs)
+        poly = Normalizer(self.store).to_polynomial_for_solve(node.lhs, rhs_value, var)
+        result = PolynomialSolver.solve(poly)
+        return fmt_solve(result, poly, var=var)
+
+    def _find_free_variable(self, node: Node) -> str:
+        """Return the single free variable name (not in store) in the AST."""
+        free = set()
+        self._collect_free_vars(node, free)
+        if len(free) == 0:
+            raise ComputorSolverError("No free variable found in equation to solve")
+        if len(free) > 1:
+            raise ComputorSolverError(
+                f"Ambiguous equation: multiple free variables {sorted(free)}"
+            )
+        return next(iter(free))
+
+    def _collect_free_vars(self, node: Node, free: set) -> None:
+        if isinstance(node, VariableNode):
+            try:
+                self.store.get(node.value)
+            except Exception:
+                free.add(node.value)
+        elif isinstance(node, (UnaryMinusNode, UnaryPlusNode)):
+            self._collect_free_vars(node.operand, free)
+        elif isinstance(node, BinaryOperationNode):
+            self._collect_free_vars(node.left, free)
+            self._collect_free_vars(node.right, free)
+        elif isinstance(node, FunctionCallNode):
+            for arg in node.args:
+                self._collect_free_vars(arg, free)

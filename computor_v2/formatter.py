@@ -35,7 +35,12 @@ def fmt_rational(r: Rational) -> str:
         frac_part = total % (10 ** places)
         frac_str = str(frac_part).zfill(places)
         return f"{sign}{int_part}.{frac_str}"
-    return f"{r.numerator}/{r.denominator}"
+    # Non-terminating: show as 9-decimal-place approximation
+    from decimal import Decimal, getcontext
+    getcontext().prec = 20
+    val = Decimal(r.numerator) / Decimal(r.denominator)
+    s = f"{val:.9f}"
+    return s.rstrip("0").rstrip(".")
 
 
 def fmt_complex(c: Complex) -> str:
@@ -91,8 +96,12 @@ def fmt_irrational(irr: Irrational) -> str:
         signed_sqrt = sqrt_part if positive else f"-{sqrt_part}"
         return signed_sqrt if d == 1 else f"{signed_sqrt} / {d}"
 
-    n_numer = irr.number.numerator  # denominator == d in practice
-    inner = f"{n_numer} + {sqrt_part}" if positive else f"{n_numer} - {sqrt_part}"
+    if isinstance(irr.number, Complex):
+        n_str = fmt_complex(irr.number)
+        inner = f"{n_str} + {sqrt_part}" if positive else f"{n_str} - {sqrt_part}"
+    else:
+        n_numer = irr.number.numerator  # denominator == d in practice
+        inner = f"{n_numer} + {sqrt_part}" if positive else f"{n_numer} - {sqrt_part}"
     return inner if d == 1 else f"({inner}) / {d}"
 
 
@@ -216,7 +225,7 @@ def fmt_solve(result, poly: Polynomial, var: str) -> str:
         lines.append("Infinite solutions.")
     else:
         any_complex = any(_is_complex_valued(s) for s in result.solutions)
-        field = "C" if any_complex else "R"
+        field = "ℂ" if any_complex else "ℝ"
         count_word = "One" if result.count == 1 else "Two"
         plural = "s" if result.count > 1 else ""
         lines.append(f"{count_word} solution{plural} in {field}:")
