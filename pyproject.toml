@@ -6,6 +6,7 @@ dependencies = [
     "coverage",
     "matplotlib>=3.10.8",
     "ply",
+    "pyqt5>=5.15.11",
     "pytest",
 ]
 
