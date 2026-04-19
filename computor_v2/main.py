@@ -1,4 +1,11 @@
 import argparse
+import sys
+
+try:
+    import readline  # noqa: F401 — enables arrow keys, history, cursor movement
+except ImportError:
+    pass  # Windows: readline not available
+
 from computor_v2.computorv2 import ComputorV2
 
 
@@ -21,12 +28,21 @@ def run_file(computor_v2: ComputorV2, path: str, debug: bool = False) -> None:
 
 
 def run_repl(computor_v2: ComputorV2) -> None:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stdin.reconfigure(encoding="utf-8")
     while True:
         try:
             user_input = input("> ")
-        except (KeyboardInterrupt, EOFError):
+        except KeyboardInterrupt:
+            print("")
+            continue
+        except EOFError:
             print("\nBye!")
             break
+        user_input = user_input.strip()
+        if not user_input:
+            continue
         if user_input == "exit":
             print("\nSee you later!")
             break
