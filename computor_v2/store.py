@@ -35,5 +35,8 @@ class Store:
     def __contains__(self, name: str) -> bool:
         return self.has(name)
 
+    def user_vars(self) -> dict:
+        return dict(self._data)
+
     def __repr__(self) -> str:
         return f"Store({self._data})"

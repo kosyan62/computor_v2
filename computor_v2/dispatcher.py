@@ -9,8 +9,8 @@ from computor_v2.interpreter import Interpreter
 from computor_v2.normalizer import Normalizer
 from computor_v2.solver import PolynomialSolver
 from computor_v2.types import Function
-from computor_v2.errors import ComputorTypeError, ComputorSolverError
-from computor_v2.formatter import fmt, fmt_ast, fmt_solve
+from computor_v2.errors import ComputorTypeError, ComputorSolverError, ComputorNameError
+from computor_v2.formatter import fmt, fmt_ast, fmt_solve, fmt_polynomial
 
 
 class Dispatcher:
@@ -45,8 +45,83 @@ class Dispatcher:
         return f"{node.name}({param}) = {fmt_ast(simplified)}"
 
     def _handle_query(self, node: QueryNode) -> str:
-        value = Interpreter(self.store).evaluate(node.expr)
-        return fmt(value)
+        try:
+            value = Interpreter(self.store).evaluate(node.expr)
+            return fmt(value)
+        except ComputorNameError as e:
+            if not self._has_func_call_with_free_arg(node.expr):
+                raise
+            return self._symbolic_query(node.expr)
+
+    def _symbolic_query(self, expr: Node) -> str:
+        """Inline function calls symbolically, then format as polynomial or AST."""
+        inlined = self._symbolic_inline(expr)
+        free = set()
+        self._collect_free_vars(inlined, free)
+        if len(free) == 1:
+            var = next(iter(free))
+            try:
+                poly = Normalizer(self.store).to_polynomial(inlined, var)
+                return fmt_polynomial(poly, var)
+            except Exception:
+                pass
+        simplified = Normalizer(self.store).simplify(inlined, next(iter(free)) if len(free) == 1 else "")
+        return fmt_ast(simplified)
+
+    def _has_func_call_with_free_arg(self, node: Node) -> bool:
+        """True if any function call in node has a free-variable argument."""
+        if isinstance(node, FunctionCallNode):
+            for arg in node.args:
+                free = set()
+                self._collect_free_vars(arg, free)
+                if free:
+                    return True
+        if isinstance(node, BinaryOperationNode):
+            return (self._has_func_call_with_free_arg(node.left)
+                    or self._has_func_call_with_free_arg(node.right))
+        if isinstance(node, (UnaryMinusNode, UnaryPlusNode)):
+            return self._has_func_call_with_free_arg(node.operand)
+        return False
+
+    def _symbolic_inline(self, node: Node) -> Node:
+        """Recursively replace function calls with their expanded body."""
+        if isinstance(node, FunctionCallNode):
+            try:
+                func = self.store.get(node.func_name)
+            except Exception:
+                return node
+            if isinstance(func, Function):
+                inlined_arg = self._symbolic_inline(node.args[0])
+                return self._substitute_ast(func.body, func.param, inlined_arg)
+            return node
+        if isinstance(node, BinaryOperationNode):
+            return BinaryOperationNode(
+                self._symbolic_inline(node.left), node.op, self._symbolic_inline(node.right)
+            )
+        if isinstance(node, UnaryMinusNode):
+            return UnaryMinusNode(self._symbolic_inline(node.operand))
+        if isinstance(node, UnaryPlusNode):
+            return UnaryPlusNode(self._symbolic_inline(node.operand))
+        return node
+
+    def _substitute_ast(self, node: Node, param: str, value: Node) -> Node:
+        """Replace all VariableNode(param) with value in node."""
+        if isinstance(node, VariableNode) and node.value.lower() == param.lower():
+            return value
+        if isinstance(node, BinaryOperationNode):
+            return BinaryOperationNode(
+                self._substitute_ast(node.left, param, value),
+                node.op,
+                self._substitute_ast(node.right, param, value),
+            )
+        if isinstance(node, UnaryMinusNode):
+            return UnaryMinusNode(self._substitute_ast(node.operand, param, value))
+        if isinstance(node, UnaryPlusNode):
+            return UnaryPlusNode(self._substitute_ast(node.operand, param, value))
+        if isinstance(node, FunctionCallNode):
+            new_args = [self._substitute_ast(a, param, value) for a in node.args]
+            return FunctionCallNode(node.func_name, new_args)
+        return node
 
     def _handle_expr(self, node: Node) -> str:
         value = Interpreter(self.store).evaluate(node)
