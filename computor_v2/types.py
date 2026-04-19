@@ -239,6 +239,21 @@ class Complex(Scalar):
             return NotImplemented
         return other / self
 
+    def __pow__(self, other):
+        if isinstance(other, Rational):
+            if other.denominator != 1:
+                raise TypeError("Complex exponent must be an integer")
+            exp = other.numerator
+            if exp == 0:
+                return Rational(1)
+            if exp < 0:
+                return Rational(1) / (self ** Rational(-exp))
+            result = Complex(Rational(1), Rational(0))
+            for _ in range(exp):
+                result = result * self
+            return result
+        return NotImplemented
+
     def __neg__(self):
         return Complex(-self.re, -self.im)
 
@@ -311,6 +326,14 @@ class Matrix:
     def __rmul__(self, other):
         if isinstance(other, (Rational, Complex)):
             return self * other
+        return NotImplemented
+
+    def __truediv__(self, other):
+        if isinstance(other, (Rational, Complex)):
+            return Matrix([
+                [self.rows[i][j] / other for j in range(self.n_cols)]
+                for i in range(self.n_rows)
+            ])
         return NotImplemented
 
     def __matmul__(self, other):
@@ -483,6 +506,21 @@ class Irrational(Scalar):
             if new_coeff == Rational(0):
                 return new_number
             return Irrational(new_number, new_coeff, self.radicand)
+        return NotImplemented
+
+    def __pow__(self, other):
+        if isinstance(other, Rational):
+            if other.denominator != 1:
+                raise TypeError("Irrational exponent must be an integer")
+            exp = other.numerator
+            if exp == 0:
+                return Rational(1)
+            if exp < 0:
+                return Rational(1) / (self ** Rational(-exp))
+            result = Rational(1)
+            for _ in range(exp):
+                result = result * self
+            return result
         return NotImplemented
 
     def __neg__(self):
