@@ -1,6 +1,6 @@
 import pytest
 from computor_v2.store import Store
-from computor_v2.types import Rational, Complex, Function, BuiltinFunction, Scalar
+from computor_v2.types import Rational, Complex, BuiltinFunction, Scalar
 from computor_v2.errors import ComputorNameError, ComputorTypeError
 from computor_v2.builtins import BUILTINS
 
@@ -182,7 +182,6 @@ class TestBuiltins:
         assert result == R(3)
 
     def test_sqrt_non_rational_raises(self):
-        from computor_v2.errors import ComputorTypeError
         with pytest.raises(ComputorTypeError):
             BUILTINS["sqrt"].call(Complex(R(0), R(1)))
 

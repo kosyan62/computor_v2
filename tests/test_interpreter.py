@@ -174,7 +174,6 @@ class TestFunctionCall:
         assert interp.evaluate(node) == R(5)
 
     def test_user_function(self):
-        from computor_v2.parsing.AST import BinaryOperationNode
         store = Store()
         body = binop(var("x"), "*", num(2))
         store.set("f", Function("x", body))

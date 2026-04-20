@@ -1,7 +1,6 @@
 import pytest
 from computor_v2.parsing.AST import (
-    NumberNode, VariableNode, UnaryMinusNode, UnaryPlusNode,
-    BinaryOperationNode, FunctionCallNode,
+    NumberNode, VariableNode, UnaryMinusNode, BinaryOperationNode, FunctionCallNode,
 )
 from computor_v2.types import Rational as R
 from computor_v2.store import Store
