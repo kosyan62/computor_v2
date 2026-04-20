@@ -7,7 +7,6 @@ import sys
 import textwrap
 from pathlib import Path
 
-import pytest
 
 PYTHON = sys.executable
 MODULE = "computor_v2.main"

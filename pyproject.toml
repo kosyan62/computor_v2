@@ -14,3 +14,10 @@ dependencies = [
 exclude = [
     "parsetab.py",
 ]
+
+[tool.ruff.lint]
+ignore = [
+    "E701",   # match-case one-liners: intentional style
+    "E402",   # module-level import not at top: R = Rational alias pattern
+    "E741",   # ambiguous variable name: l used in list comprehensions
+]

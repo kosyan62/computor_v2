@@ -1,8 +1,6 @@
-import pytest
 
 from computor_v2.types import Complex, Rational
 from computor_v2.builtins import BUILTINS
-from computor_v2.errors import ComputorTypeError
 # ---------------------------------------------------------------------------
 # Builtins
 # ---------------------------------------------------------------------------

@@ -2,7 +2,7 @@ from __future__ import annotations
 from computor_v2.parsing.AST import (
     Node, Equality, FunctionDefinitionNode, QueryNode, SolveNode,
     VariableNode, FunctionCallNode, BinaryOperationNode,
-    UnaryMinusNode, UnaryPlusNode, NumberNode,
+    UnaryMinusNode, UnaryPlusNode,
 )
 from computor_v2.store import Store
 from computor_v2.interpreter import Interpreter
@@ -48,7 +48,7 @@ class Dispatcher:
         try:
             value = Interpreter(self.store).evaluate(node.expr)
             return fmt(value)
-        except ComputorNameError as e:
+        except ComputorNameError:
             if not self._has_func_call_with_free_arg(node.expr):
                 raise
             return self._symbolic_query(node.expr)

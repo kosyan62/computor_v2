@@ -1,4 +1,3 @@
-import pytest
 from computor_v2.formatter import fmt_rational, fmt_complex
 from computor_v2.types import Rational as R, Complex
 
@@ -204,7 +203,6 @@ def test_polynomial_var_name():
 # Task 8: fmt_solve + fmt dispatcher
 from computor_v2.formatter import fmt_solve, fmt
 from computor_v2.solver import SolveResult, NO_SOLUTION, INFINITE_SOLUTIONS
-from computor_v2.types import Irrational
 
 
 def test_fmt_dispatch_rational():

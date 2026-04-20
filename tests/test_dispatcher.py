@@ -47,7 +47,7 @@ class TestAssign:
 
     def test_assign_complex(self):
         store = Store()
-        result = dispatch("z = 2 * i + 3", store)
+        dispatch("z = 2 * i + 3", store)
         assert store.get("z") == Complex(R(3), R(2))
 
 
