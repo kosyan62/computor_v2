@@ -23,19 +23,26 @@
 
 ```
 user input
-    │
-    ▼
-ImplicitMultiplyLexer  ←── PLY Lexer (lexer.py)
-    │
-    ▼
-PLY yacc parser  ──────────► AST Node
-    │
-    ▼
+    |
+    v
+ImplicitMultiplyLexer   -- оборачивает PLY Lexer, вставляет неявный *
+    |
+    v
+PLY yacc parser  ->  AST Node
+    |
+    v
 Dispatcher
-    ├── Interpreter   (вычисление AST → тип)
-    ├── Normalizer    (свёртка констант в телах функций)
-    ├── PolynomialSolver (решение уравнений ≤ 2 степени)
-    └── Formatter     (форматирование результата)
+    |
+    +-- присвоение переменной  ->  Interpreter -> Store -> Formatter
+    |
+    +-- определение функции    ->  Normalizer  -> Store -> Formatter
+    |
+    +-- вычисление (= ?)       ->  Interpreter (или Normalizer, если свободная переменная) -> Formatter
+    |
+    +-- решение уравнения      ->  Interpreter + Normalizer + PolynomialSolver -> Formatter
+    |
+    v
+вывод строки
 ```
 
 ### Модули
