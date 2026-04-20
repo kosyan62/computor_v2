@@ -1,9 +1,12 @@
+import logging
 from computor_v2.parsing.parser import parser
 from computor_v2.store import Store
 from computor_v2.dispatcher import Dispatcher
 from computor_v2.errors import ComputorError
 from computor_v2.formatter import fmt, fmt_ast
 from computor_v2.types import Function
+
+logger = logging.getLogger("computor_v2")
 
 
 class ComputorV2:
@@ -23,15 +26,20 @@ class ComputorV2:
                 self._cmd_plot(text.strip())
                 return
 
+            logger.debug("Input: %r", text)
             node = parser.parse(text)
             if node is None:
                 return
+            logger.debug("AST: %s", type(node).__name__)
             output = self.dispatcher.dispatch(node)
             if output is not None:
+                logger.debug("Result: %r", output)
                 print(output)
         except ComputorError as e:
+            logger.debug("ComputorError: %s", e)
             print(f"Error: {e}")
         except (SyntaxError, ValueError) as e:
+            logger.debug("ParseError: %s", e)
             print(f"Syntax error: {e}")
 
     def _cmd_vars(self):

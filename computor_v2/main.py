@@ -1,4 +1,5 @@
 import argparse
+import logging
 import sys
 
 try:
@@ -7,6 +8,8 @@ except ImportError:
     pass  # Windows: readline not available
 
 from computor_v2.computorv2 import ComputorV2
+
+logger = logging.getLogger("computor_v2")
 
 
 def parse_args() -> argparse.Namespace:
@@ -53,8 +56,11 @@ def main():
     args = parse_args()
     computor_v2 = ComputorV2()
     if args.debug:
-        print("Debug mode is on")
-        print(f"Args: {args}")
+        logging.basicConfig(
+            level=logging.DEBUG,
+            format="[%(levelname)s] %(name)s: %(message)s",
+        )
+        logger.debug("Debug mode enabled. Args: %s", args)
     if args.file:
         run_file(computor_v2, args.file, debug=args.debug)
     else:
