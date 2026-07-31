@@ -100,6 +100,17 @@ def plot_function(func: Function, func_name: str, store: Store,
         except Exception:
             ys.append(float("nan"))
 
+    # Break the curve at poles: a sign flip between two huge neighbours is an
+    # asymptote crossing, not a real segment — matplotlib must not connect it.
+    finite = sorted(abs(y) for y in ys if math.isfinite(y))
+    cutoff = 10 * finite[len(finite) // 2] if finite else 0.0
+    if cutoff > 0:
+        for i in range(1, len(ys)):
+            a, b = ys[i - 1], ys[i]
+            if (math.isfinite(a) and math.isfinite(b) and a * b < 0
+                    and abs(a) > cutoff and abs(b) > cutoff):
+                ys[i] = float("nan")
+
     _fig, ax = plt.subplots()
     ax.plot(xs, ys, linewidth=1.5)
     ax.axhline(0, color="black", linewidth=0.5)
