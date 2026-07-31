@@ -1,5 +1,5 @@
 import math
-from computor_v2.types import Rational, Complex, BuiltinFunction
+from computor_v2.types import Rational, Complex, Irrational, BuiltinFunction
 from computor_v2.calculus.typed import sqrt as calculus_sqrt
 from computor_v2.errors import ComputorTypeError
 
@@ -25,6 +25,11 @@ def builtin_abs(val):
         return abs(val)
     if isinstance(val, Complex):
         return calculus_sqrt(val.re * val.re + val.im * val.im)
+    if isinstance(val, Irrational) and isinstance(val.coeff, Rational):
+        n = val.number.numerator / val.number.denominator if isinstance(val.number, Rational) else 0.0
+        r = val.radicand.numerator / val.radicand.denominator
+        c = val.coeff.numerator / val.coeff.denominator
+        return val if n + c * math.sqrt(r) >= 0 else -val
     raise ComputorTypeError(f"abs expects a real or complex number, got {type(val).__name__}")
 
 
