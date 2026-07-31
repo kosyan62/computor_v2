@@ -1,31 +1,31 @@
 # computor-v2
 
-Интерактивный интерпретатор математических выражений с поддержкой рациональных чисел, комплексных чисел, матриц, функций и решения полиномиальных уравнений до 2-й степени.
+Interactive math expression interpreter supporting rational numbers, complex numbers, matrices, functions, and polynomial equation solving up to degree 2.
 
 ---
 
-## Требования к продукту
+## Features
 
-- Поддержка математических типов: рациональные числа (ℚ), комплексные числа, матрицы, функции одной переменной
-- Присвоение переменных и переприсвоение с изменением типа
-- Вычисление выражений: `expr = ?`
-- Решение уравнений степени ≤ 2: `f(x) = 0 ?` и `ax^2 + bx + c = 0 ?`
-- Символьная композиция функций: `f(g(x)) = ?`
-- Построение графика функции: `plot f`
-- Встроенные функции: `sqrt`, `abs`, `sin`, `cos`, `tan`, `exp`
-- Команды: `vars` (список переменных), `exit`
-- Режим файла: `uv run computor -f script.txt`
-- Режим отладки с логированием: `-d`
+- Math types: rational numbers (ℚ), complex numbers, matrices, single-variable functions
+- Variable assignment and reassignment with type changes
+- Expression evaluation: `expr = ?`
+- Equation solving for degree ≤ 2: `f(x) = 0 ?` and `ax^2 + bx + c = 0 ?`
+- Symbolic function composition: `f(g(x)) = ?`
+- Function plotting: `plot f`
+- Built-in functions: `sqrt`, `abs`, `sin`, `cos`, `tan`, `exp`
+- Commands: `vars` (list variables), `exit`
+- File mode: `uv run computor -f script.txt`
+- Debug mode with logging: `-d`
 
 ---
 
-## Архитектура
+## Architecture
 
 ```
 user input
     |
     v
-ImplicitMultiplyLexer   -- оборачивает PLY Lexer, вставляет неявный *
+ImplicitMultiplyLexer   -- wraps the PLY lexer, injects implicit *
     |
     v
 PLY yacc parser  ->  AST Node
@@ -33,41 +33,41 @@ PLY yacc parser  ->  AST Node
     v
 Dispatcher
     |
-    +-- присвоение переменной  ->  Interpreter -> Store -> Formatter
+    +-- variable assignment   ->  Interpreter -> Store -> Formatter
     |
-    +-- определение функции    ->  Normalizer  -> Store -> Formatter
+    +-- function definition   ->  Normalizer  -> Store -> Formatter
     |
-    +-- вычисление (= ?)       ->  Interpreter (или Normalizer, если свободная переменная) -> Formatter
+    +-- evaluation (= ?)      ->  Interpreter (or Normalizer when a free variable is present) -> Formatter
     |
-    +-- решение уравнения      ->  Interpreter + Normalizer + PolynomialSolver -> Formatter
+    +-- equation solving      ->  Interpreter + Normalizer + PolynomialSolver -> Formatter
     |
     v
-вывод строки
+output string
 ```
 
-### Модули
+### Modules
 
-| Модуль | Назначение |
-|--------|-----------|
-| `parsing/lexer.py` | PLY-лексер + InjectMultiply для `2x` → `2 * x` |
-| `parsing/parser.py` | PLY-грамматика → AST |
-| `parsing/AST.py` | Иерархия узлов AST |
+| Module | Purpose |
+|--------|---------|
+| `parsing/lexer.py` | PLY lexer + InjectMultiply for `2x` → `2 * x` |
+| `parsing/parser.py` | PLY grammar → AST |
+| `parsing/AST.py` | AST node hierarchy |
 | `types.py` | `Rational`, `Complex`, `Irrational`, `Matrix`, `Function` |
-| `interpreter.py` | Рекурсивный вычислитель AST |
-| `normalizer.py` | Свёртка константных подвыражений |
-| `solver.py` | Решатель полиномов (степень 0–2) |
-| `formatter.py` | Форматирование всех типов |
-| `dispatcher.py` | Маршрутизация AST-узлов |
-| `store.py` | Хранилище переменных (case-insensitive) |
-| `builtins/` | Встроенные константы и функции |
-| `plotter.py` | Построение графиков через matplotlib |
-| `computorv2.py` | Точка входа: парсинг + диспетчеризация |
-| `main.py` | CLI: REPL / файловый режим / отладка |
+| `interpreter.py` | Recursive AST evaluator |
+| `normalizer.py` | Constant subexpression folding |
+| `solver.py` | Polynomial solver (degree 0–2) |
+| `formatter.py` | Formatting for all types |
+| `dispatcher.py` | AST node routing |
+| `store.py` | Variable store (case-insensitive) |
+| `builtins/` | Built-in constants and functions |
+| `plotter.py` | Function plotting via matplotlib |
+| `computorv2.py` | Entry point: parsing + dispatch |
+| `main.py` | CLI: REPL / file mode / debug |
 
-### Типы данных
+### Data types
 
-| Тип | Примеры значений |
-|-----|-----------------|
+| Type | Example values |
+|------|----------------|
 | `Rational` | `2`, `-4.3`, `1/3 → 0.333333333` |
 | `Complex` | `3 + 2i`, `-4 - 4i` |
 | `Matrix` | `[[1, 2]; [3, 4]]` |
@@ -76,26 +76,26 @@ Dispatcher
 
 ---
 
-## Установка и запуск
+## Installation and usage
 
-### Локально (uv)
+### Local (uv)
 
 ```bash
-# Установить uv
+# Install uv
 pip install uv
 
-# Клонировать и установить зависимости
+# Clone and install dependencies
 git clone https://github.com/kosyan62/computor_v2.git
 cd computor_v2
 uv sync
 
-# Запустить REPL
+# Start the REPL
 uv run computor
 
-# Файловый режим
+# File mode
 uv run computor -f examples/showcase.txt
 
-# Режим отладки
+# Debug mode
 uv run computor -d
 ```
 
@@ -104,19 +104,19 @@ uv run computor -d
 ```bash
 docker build -t computor-v2 .
 
-# Интерактивный REPL
+# Interactive REPL
 docker run -it computor-v2
 
-# Файловый режим
+# File mode
 docker run -i computor-v2 -f - < examples/showcase.txt
 
-# Режим отладки
+# Debug mode
 docker run -it computor-v2 -d
 ```
 
 ---
 
-## Использование
+## Usage
 
 ```
 > varA = 2
@@ -154,9 +154,9 @@ Plotting f(x) on [-10.0, 10.0]
 Plotting f(x) on [-2.0, 7.0]
 ```
 
-### Галерея графиков
+### Plot gallery
 
-Сгенерировано из [`examples/showcase.txt`](examples/showcase.txt):
+Generated from [`examples/showcase.txt`](examples/showcase.txt):
 
 ```bash
 COMPUTOR_PLOT_DIR=imgs uv run computor -f examples/showcase.txt
@@ -174,52 +174,51 @@ COMPUTOR_PLOT_DIR=imgs uv run computor -f examples/showcase.txt
 |---|---|
 | ![circ](imgs/circ.png) | ![q](imgs/q.png) |
 
-Плоттер сам разрывает кривую на полюсах (`q`) и в точках, где значение не
-вещественно (`circ` за краями области определения). При установленной
-переменной окружения `COMPUTOR_PLOT_DIR` графики сохраняются в PNG вместо
-показа окна.
+The plotter breaks the curve at poles (`q`) and wherever the value is not
+real (`circ` outside its domain). When the `COMPUTOR_PLOT_DIR` environment
+variable is set, plots are saved as PNG files instead of opening a window.
 
-### Поддерживаемые операторы
+### Supported operators
 
-| Оператор | Описание |
-|----------|----------|
-| `+`, `-`, `*`, `/` | Стандартные арифметические |
-| `%` | Остаток от деления |
-| `//` | Целочисленное деление |
-| `^` | Степень (скалярная) |
-| `**` | Матричное умножение |
-| `= ?` | Вычислить выражение |
-| `f(x) = val ?` | Решить уравнение |
+| Operator | Description |
+|----------|-------------|
+| `+`, `-`, `*`, `/` | Standard arithmetic |
+| `%` | Modulo |
+| `//` | Integer division |
+| `^` | Power (scalar) |
+| `**` | Matrix multiplication |
+| `= ?` | Evaluate expression |
+| `f(x) = val ?` | Solve equation |
 
 ---
 
-## Тестирование
+## Testing
 
 ```bash
-# Запустить все тесты
+# Run all tests
 uv run pytest tests/ -v
 
-# С отчётом о покрытии
+# With coverage report
 uv run pytest tests/ --cov=computor_v2 --cov-report=term-missing
 ```
 
-**Результаты:** 10 616 тестов, 0 failures.
+**Results:** 10 617 tests, 0 failures.
 
-Тесты покрывают:
-- Все типы данных и операции над ними (`test_types.py`)
-- Лексер и парсер (`test_parser.py`, `test_lexer.py`)
-- Вычислитель и нормализатор (`test_interpreter.py`, `test_normalizer.py`)
-- Диспетчер: присвоение, запросы, решение уравнений (`test_dispatcher.py`)
-- Форматтер и хранилище (`test_formatter.py`, `test_store.py`)
-- Встроенные функции (`test_builtins.py`)
-- Функциональные тесты через `-f` и stdin (`test_functional.py`)
-- Все примеры из задания (`test_subject_examples.py`)
+Test coverage:
+- All data types and their operations (`test_types.py`)
+- Lexer and parser (`test_parser.py`, `test_lexer.py`)
+- Evaluator and normalizer (`test_interpreter.py`, `test_normalizer.py`)
+- Dispatcher: assignment, queries, equation solving (`test_dispatcher.py`)
+- Formatter and store (`test_formatter.py`, `test_store.py`)
+- Built-in functions (`test_builtins.py`)
+- Functional tests via `-f` and stdin (`test_functional.py`)
+- All examples from the subject (`test_subject_examples.py`)
 
 ---
 
 ## CI/CD
 
-GitHub Actions запускается при каждом push и pull request в ветку `master`:
+GitHub Actions runs on every push and pull request to `master`:
 
 ```
 .github/workflows/ci.yml
@@ -232,17 +231,17 @@ GitHub Actions запускается при каждом push и pull request �
         └── upload-artifact   # computor-v2-dist
 ```
 
-Статус CI: [![CI](https://github.com/kosyan62/computor_v2/actions/workflows/ci.yml/badge.svg)](https://github.com/kosyan62/computor_v2/actions/workflows/ci.yml)
+CI status: [![CI](https://github.com/kosyan62/computor_v2/actions/workflows/ci.yml/badge.svg)](https://github.com/kosyan62/computor_v2/actions/workflows/ci.yml)
 
 ---
 
-## Режим отладки
+## Debug mode
 
 ```bash
 uv run computor -d
 ```
 
-В debug-режиме (`-d`) все события логируются в stdout через модуль `logging`:
+In debug mode (`-d`) every event is logged to stdout via the `logging` module:
 
 ```
 [DEBUG] computor_v2: Debug mode enabled. Args: Namespace(debug=True, file=None)
@@ -255,15 +254,15 @@ uv run computor -d
 
 ---
 
-## Стек технологий
+## Tech stack
 
-| Компонент | Технология |
-|-----------|-----------|
-| Язык | Python 3.13 |
-| Парсер | PLY (Python Lex-Yacc) |
-| Графики | matplotlib + PyQt5 |
-| Тесты | pytest |
-| Линтер | ruff |
-| Менеджер пакетов | uv |
+| Component | Technology |
+|-----------|------------|
+| Language | Python 3.13 |
+| Parser | PLY (Python Lex-Yacc) |
+| Plotting | matplotlib + PyQt5 |
+| Tests | pytest |
+| Linter | ruff |
+| Package manager | uv |
 | CI/CD | GitHub Actions |
-| Контейнеризация | Docker |
+| Containerization | Docker |
