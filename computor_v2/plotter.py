@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import os
 
 from computor_v2.errors import ComputorTypeError
 from computor_v2.parsing.AST import (
@@ -70,9 +71,12 @@ def _float_eval(node, param: str, x: float, store: Store) -> float:
 
 def plot_function(func: Function, func_name: str, store: Store,
                   x_min: float = -10.0, x_max: float = 10.0, n_points: int = 500):
+    save_dir = os.environ.get("COMPUTOR_PLOT_DIR")
     try:
         import matplotlib
-        _CANDIDATES = [
+        if save_dir:
+            matplotlib.use("Agg")
+        _CANDIDATES = [] if save_dir else [
             ("PyQt6",  "Qt6Agg"),
             ("PyQt5",  "Qt5Agg"),
             ("PySide6","Qt6Agg"),
@@ -120,4 +124,8 @@ def plot_function(func: Function, func_name: str, store: Store,
     ax.set_title(f"{func_name}(x)")
     ax.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.show(block=False)
+    if save_dir:
+        _fig.savefig(os.path.join(save_dir, f"{func_name}.png"), dpi=120)
+        plt.close(_fig)
+    else:
+        plt.show(block=False)

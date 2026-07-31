@@ -93,7 +93,7 @@ uv sync
 uv run computor
 
 # Файловый режим
-uv run computor -f examples/demo.txt
+uv run computor -f examples/showcase.txt
 
 # Режим отладки
 uv run computor -d
@@ -108,7 +108,7 @@ docker build -t computor-v2 .
 docker run -it computor-v2
 
 # Файловый режим
-docker run -i computor-v2 -f - < examples/demo.txt
+docker run -i computor-v2 -f - < examples/showcase.txt
 
 # Режим отладки
 docker run -it computor-v2 -d
@@ -153,6 +153,31 @@ Plotting f(x) on [-10.0, 10.0]
 > plot f -2 7
 Plotting f(x) on [-2.0, 7.0]
 ```
+
+### Галерея графиков
+
+Сгенерировано из [`examples/showcase.txt`](examples/showcase.txt):
+
+```bash
+COMPUTOR_PLOT_DIR=imgs uv run computor -f examples/showcase.txt
+```
+
+| `damp(x) = exp(-x/5) * cos(3x)` | `sinc(x) = sin(x) / x` |
+|---|---|
+| ![damp](imgs/damp.png) | ![sinc](imgs/sinc.png) |
+
+| `chirp(x) = sin(x^2)` | `fourier(x) = Σ sin(kx)/k, k=1..4` |
+|---|---|
+| ![chirp](imgs/chirp.png) | ![fourier](imgs/fourier.png) |
+
+| `circ(x) = sqrt(25 - x^2)` | `q(x) = 1 / (x^2 - 1)` |
+|---|---|
+| ![circ](imgs/circ.png) | ![q](imgs/q.png) |
+
+Плоттер сам разрывает кривую на полюсах (`q`) и в точках, где значение не
+вещественно (`circ` за краями области определения). При установленной
+переменной окружения `COMPUTOR_PLOT_DIR` графики сохраняются в PNG вместо
+показа окна.
 
 ### Поддерживаемые операторы
 

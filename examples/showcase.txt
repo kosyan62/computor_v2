@@ -1,0 +1,26 @@
+# computor-v2 showcase: определения функций и построение графиков
+# Запуск: uv run computor -f examples/showcase.txt
+
+# Затухающие колебания
+damp(x) = exp(-x / 5) * cos(3 * x)
+plot damp 0 15
+
+# Кардинальный синус: разрыв в нуле
+sinc(x) = sin(x) / x
+plot sinc -15 15
+
+# Чирп: частота растёт от центра
+chirp(x) = sin(x ^ 2)
+plot chirp -4 4
+
+# Полукруг радиуса 5: sqrt отрицательного за краями -> разрыв
+circ(x) = sqrt(25 - x ^ 2)
+plot circ -5.5 5.5
+
+# Полюса в x = +-1: три ветви
+q(x) = 1 / (x ^ 2 - 1)
+plot q -3 3
+
+# Частичная сумма Фурье пилообразной волны
+fourier(x) = sin(x) + sin(2 * x) / 2 + sin(3 * x) / 3 + sin(4 * x) / 4
+plot fourier -7 7
