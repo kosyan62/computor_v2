@@ -1,9 +1,21 @@
 from __future__ import annotations
-from computor_v2.types import Rational, Complex, Irrational, Matrix, Function, BuiltinFunction
-from computor_v2.polynomial import Polynomial
+
 from computor_v2.parsing.AST import (
-    NumberNode, VariableNode, UnaryMinusNode, UnaryPlusNode,
-    BinaryOperationNode, FunctionCallNode,
+    BinaryOperationNode,
+    FunctionCallNode,
+    NumberNode,
+    UnaryMinusNode,
+    UnaryPlusNode,
+    VariableNode,
+)
+from computor_v2.polynomial import Polynomial
+from computor_v2.types import (
+    BuiltinFunction,
+    Complex,
+    Function,
+    Irrational,
+    Matrix,
+    Rational,
 )
 
 
@@ -50,9 +62,7 @@ def fmt_complex(c: Complex) -> str:
         return fmt_rational(c.re) if c.re != Rational(0) else "0"
 
     # Format imaginary part magnitude
-    if im == Rational(1):
-        im_abs_str = "i"
-    elif im == Rational(-1):
+    if im == Rational(1) or im == Rational(-1):
         im_abs_str = "i"
     else:
         im_abs_str = f"{fmt_rational(abs(im))}i"
@@ -210,9 +220,7 @@ def _is_complex_valued(val) -> bool:
     """True if val has a non-zero imaginary component."""
     if isinstance(val, Complex):
         return val.im != Rational(0)
-    if isinstance(val, Irrational) and isinstance(val.coeff, Complex):
-        return True
-    return False
+    return isinstance(val, Irrational) and isinstance(val.coeff, Complex)
 
 
 def fmt_solve(result, poly: Polynomial, var: str) -> str:

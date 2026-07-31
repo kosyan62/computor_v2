@@ -1,12 +1,18 @@
 from __future__ import annotations
+
 import math
-from computor_v2.types import Rational, Irrational, Function, BuiltinFunction
+
 from computor_v2.errors import ComputorTypeError
-from computor_v2.store import Store
 from computor_v2.parsing.AST import (
-    NumberNode, VariableNode, UnaryMinusNode, UnaryPlusNode,
-    BinaryOperationNode, FunctionCallNode,
+    BinaryOperationNode,
+    FunctionCallNode,
+    NumberNode,
+    UnaryMinusNode,
+    UnaryPlusNode,
+    VariableNode,
 )
+from computor_v2.store import Store
+from computor_v2.types import BuiltinFunction, Function, Irrational, Rational
 
 
 def _val_to_float(val) -> float:
@@ -94,7 +100,7 @@ def plot_function(func: Function, func_name: str, store: Store,
         except Exception:
             ys.append(float("nan"))
 
-    fig, ax = plt.subplots()
+    _fig, ax = plt.subplots()
     ax.plot(xs, ys, linewidth=1.5)
     ax.axhline(0, color="black", linewidth=0.5)
     ax.axvline(0, color="black", linewidth=0.5)

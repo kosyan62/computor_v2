@@ -1,15 +1,16 @@
 from __future__ import annotations
-from computor_v2.polynomial import Polynomial
-from computor_v2.types import Rational
+
 from computor_v2.calculus.typed import sqrt as calc_sqrt
 from computor_v2.errors import ComputorSolverError
+from computor_v2.polynomial import Polynomial
+from computor_v2.types import Rational
 
 R = Rational
 
 
 def _sort_key(val) -> tuple:
     """Numeric sort key for solutions: (re, im) approximation."""
-    from computor_v2.types import Rational, Complex, Irrational
+    from computor_v2.types import Complex, Irrational, Rational
     if isinstance(val, Rational):
         return (val.numerator / val.denominator, 0)
     if isinstance(val, Complex):
@@ -28,7 +29,7 @@ def _sort_key(val) -> tuple:
 
 
 class SolveResult:
-    def __init__(self, solutions: list, count: int | float):
+    def __init__(self, solutions: list, count: float):
         self.solutions = solutions
         self.count = count
 

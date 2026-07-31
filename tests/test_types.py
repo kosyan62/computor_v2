@@ -1,7 +1,7 @@
 import pytest
-from computor_v2.types import Rational, Complex, Matrix, Function, BuiltinFunction
-from computor_v2.parsing.AST import VariableNode
 
+from computor_v2.parsing.AST import VariableNode
+from computor_v2.types import BuiltinFunction, Complex, Function, Matrix, Rational
 
 # ---------------------------------------------------------------------------
 # Rational

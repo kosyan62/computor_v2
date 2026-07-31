@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from computor_v2.types import Rational
 
 R = Rational

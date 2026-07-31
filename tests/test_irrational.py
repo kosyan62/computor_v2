@@ -1,7 +1,8 @@
 import pytest
-from computor_v2.types import Rational, Complex, Irrational
-from computor_v2.calculus.typed import sqrt
+
 from computor_v2.calculus.pure import factor_sqrt
+from computor_v2.calculus.typed import sqrt
+from computor_v2.types import Complex, Irrational, Rational
 
 R = Rational
 

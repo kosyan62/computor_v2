@@ -1,8 +1,9 @@
 import pytest
-from computor_v2.polynomial import Polynomial
-from computor_v2.types import Rational, Complex, Irrational
+
 from computor_v2.errors import ComputorSolverError
+from computor_v2.polynomial import Polynomial
 from computor_v2.solver import PolynomialSolver, SolveResult
+from computor_v2.types import Complex, Irrational, Rational
 
 R = Rational
 

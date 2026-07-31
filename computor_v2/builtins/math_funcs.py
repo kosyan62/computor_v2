@@ -1,7 +1,8 @@
 import math
-from computor_v2.types import Rational, Complex, Irrational, BuiltinFunction
+
 from computor_v2.calculus.typed import sqrt as calculus_sqrt
 from computor_v2.errors import ComputorTypeError
+from computor_v2.types import BuiltinFunction, Complex, Irrational, Rational
 
 
 def _to_float(val) -> float:

@@ -1,11 +1,21 @@
 import pytest
-from computor_v2.parsing.AST import (
-    NumberNode, VariableNode, UnaryMinusNode, UnaryPlusNode,
-    BinaryOperationNode, FunctionCallNode, MatrixNode,
+
+from computor_v2.errors import (
+    ComputorNameError,
+    ComputorRecursionError,
+    ComputorTypeError,
 )
-from computor_v2.types import Rational, Complex, Irrational, Matrix, Function
+from computor_v2.parsing.AST import (
+    BinaryOperationNode,
+    FunctionCallNode,
+    MatrixNode,
+    NumberNode,
+    UnaryMinusNode,
+    UnaryPlusNode,
+    VariableNode,
+)
 from computor_v2.store import Store
-from computor_v2.errors import ComputorNameError, ComputorTypeError, ComputorRecursionError
+from computor_v2.types import Complex, Function, Irrational, Matrix, Rational
 
 R = Rational
 

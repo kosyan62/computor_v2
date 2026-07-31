@@ -1,16 +1,24 @@
 from __future__ import annotations
-from computor_v2.parsing.AST import (
-    Node, Equality, FunctionDefinitionNode, QueryNode, SolveNode,
-    VariableNode, FunctionCallNode, BinaryOperationNode,
-    UnaryMinusNode, UnaryPlusNode,
-)
-from computor_v2.store import Store
+
+from computor_v2.errors import ComputorNameError, ComputorSolverError, ComputorTypeError
+from computor_v2.formatter import fmt, fmt_ast, fmt_polynomial, fmt_solve
 from computor_v2.interpreter import Interpreter
 from computor_v2.normalizer import Normalizer
+from computor_v2.parsing.AST import (
+    BinaryOperationNode,
+    Equality,
+    FunctionCallNode,
+    FunctionDefinitionNode,
+    Node,
+    QueryNode,
+    SolveNode,
+    UnaryMinusNode,
+    UnaryPlusNode,
+    VariableNode,
+)
 from computor_v2.solver import PolynomialSolver
+from computor_v2.store import Store
 from computor_v2.types import Function
-from computor_v2.errors import ComputorTypeError, ComputorSolverError, ComputorNameError
-from computor_v2.formatter import fmt, fmt_ast, fmt_solve, fmt_polynomial
 
 
 class Dispatcher:

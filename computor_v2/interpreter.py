@@ -1,14 +1,23 @@
 from __future__ import annotations
-from computor_v2.parsing.AST import (
-    Node, NumberNode, VariableNode, UnaryMinusNode, UnaryPlusNode,
-    BinaryOperationNode, FunctionCallNode, MatrixNode,
-)
-from computor_v2.types import Rational, Matrix, Function
-from computor_v2.store import Store
+
 from computor_v2.errors import (
-    ComputorTypeError, ComputorArgumentError,
-    ComputorRecursionError, ComputorValueError,
+    ComputorArgumentError,
+    ComputorRecursionError,
+    ComputorTypeError,
+    ComputorValueError,
 )
+from computor_v2.parsing.AST import (
+    BinaryOperationNode,
+    FunctionCallNode,
+    MatrixNode,
+    Node,
+    NumberNode,
+    UnaryMinusNode,
+    UnaryPlusNode,
+    VariableNode,
+)
+from computor_v2.store import Store
+from computor_v2.types import Function, Matrix, Rational
 
 _OPS = {"+", "-", "*", "/", "%", "//", "^", "**"}
 
@@ -18,7 +27,7 @@ class Interpreter:
         self._store = store
         self._call_stack: set[str] = set()
 
-    def evaluate(self, node: Node, bindings: dict = None):
+    def evaluate(self, node: Node, bindings: dict | None = None):
         if bindings is None:
             bindings = {}
         return self._eval(node, bindings)

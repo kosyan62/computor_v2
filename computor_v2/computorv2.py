@@ -1,9 +1,10 @@
 import logging
-from computor_v2.parsing.parser import parser
-from computor_v2.store import Store
+
 from computor_v2.dispatcher import Dispatcher
 from computor_v2.errors import ComputorError
 from computor_v2.formatter import fmt, fmt_ast
+from computor_v2.parsing.parser import parser
+from computor_v2.store import Store
 from computor_v2.types import Function
 
 logger = logging.getLogger("computor_v2")
@@ -54,8 +55,8 @@ class ComputorV2:
                 print(f"{name} = {fmt(val)}")
 
     def _cmd_plot(self, text: str):
-        from computor_v2.plotter import plot_function
         from computor_v2.errors import ComputorNameError
+        from computor_v2.plotter import plot_function
 
         parts = text.split()
         if len(parts) < 2:

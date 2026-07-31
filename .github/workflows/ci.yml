@@ -28,7 +28,7 @@ jobs:
         run: uv run pytest tests/ -v --tb=short
 
       - name: Check code style (ruff)
-        run: uvx ruff@0.14.0 check .
+        run: uvx ruff@0.16.1 check .
 
   build:
     runs-on: ubuntu-latest

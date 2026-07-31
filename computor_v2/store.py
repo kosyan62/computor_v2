@@ -1,6 +1,7 @@
 from __future__ import annotations
-from computor_v2.errors import ComputorNameError
+
 from computor_v2.builtins import BUILTINS
+from computor_v2.errors import ComputorNameError
 
 _RESERVED = frozenset(BUILTINS.keys())
 

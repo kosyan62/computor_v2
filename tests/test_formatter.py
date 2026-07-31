@@ -1,5 +1,6 @@
-from computor_v2.formatter import fmt_rational, fmt_complex
-from computor_v2.types import Rational as R, Complex
+from computor_v2.formatter import fmt_complex, fmt_rational
+from computor_v2.types import Complex
+from computor_v2.types import Rational as R
 
 
 def test_integer():
@@ -121,8 +122,11 @@ def test_matrix_with_fractions():
 # Task 6: fmt_ast with precedence
 from computor_v2.formatter import fmt_ast
 from computor_v2.parsing.AST import (
-    NumberNode, VariableNode, BinaryOperationNode,
-    UnaryMinusNode, FunctionCallNode,
+    BinaryOperationNode,
+    FunctionCallNode,
+    NumberNode,
+    UnaryMinusNode,
+    VariableNode,
 )
 
 
@@ -201,8 +205,8 @@ def test_polynomial_var_name():
 
 
 # Task 8: fmt_solve + fmt dispatcher
-from computor_v2.formatter import fmt_solve, fmt
-from computor_v2.solver import SolveResult, NO_SOLUTION, INFINITE_SOLUTIONS
+from computor_v2.formatter import fmt, fmt_solve
+from computor_v2.solver import INFINITE_SOLUTIONS, NO_SOLUTION, SolveResult
 
 
 def test_fmt_dispatch_rational():

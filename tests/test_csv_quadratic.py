@@ -4,14 +4,16 @@ Integration tests using quadratic_test_data.json (converted from computor v1 CSV
 All comparisons are exact (no float approximation).
 """
 import json
-import re
 import os
+import re
+
 import pytest
-from computor_v2.parsing.parser import parser
+
 from computor_v2.normalizer import Normalizer
+from computor_v2.parsing.parser import parser
 from computor_v2.solver import PolynomialSolver, _sort_key
 from computor_v2.store import Store
-from computor_v2.types import Rational, Complex, Irrational
+from computor_v2.types import Complex, Irrational, Rational
 
 JSON_PATH = os.path.join(os.path.dirname(__file__), "quadratic_test_data.json")
 

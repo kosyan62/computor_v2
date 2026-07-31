@@ -3,7 +3,6 @@ import subprocess
 import sys
 import textwrap
 
-
 PYTHON = sys.executable
 MODULE = "computor_v2.main"
 
@@ -13,7 +12,7 @@ def run_file(content: str, extra_args: list[str] | None = None, tmp_path=None) -
     p = tmp_path / "input.cv2"
     p.write_text(textwrap.dedent(content))
     args = [PYTHON, "-m", MODULE, "-f", str(p)] + (extra_args or [])
-    result = subprocess.run(args, capture_output=True, text=True)
+    result = subprocess.run(args, capture_output=True, text=True, check=False)
     return result.stdout.strip()
 
 
@@ -25,6 +24,7 @@ def run_stdin(content: str) -> str:
         input=lines,
         capture_output=True,
         text=True,
+        check=False,
     )
     # Strip the '> ' prompts and trailing "See you later!" from REPL output
     output_lines = []

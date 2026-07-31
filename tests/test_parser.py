@@ -1,18 +1,18 @@
 import pytest
 
 from computor_v2.parsing.AST import (
-    VariableNode,
-    NumberNode,
-    UnaryMinusNode,
-    UnaryPlusNode,
     BinaryOperationNode,
-    FunctionCallNode,
-    MatrixNode,
-    Equality,
     ComparisonNode,
+    Equality,
+    FunctionCallNode,
     FunctionDefinitionNode,
+    MatrixNode,
+    NumberNode,
     QueryNode,
     SolveNode,
+    UnaryMinusNode,
+    UnaryPlusNode,
+    VariableNode,
 )
 from computor_v2.parsing.parser import parser
 

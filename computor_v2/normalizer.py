@@ -1,13 +1,20 @@
 from __future__ import annotations
+
 from computor_v2.parsing.AST import (
-    Node, NumberNode, VariableNode, UnaryMinusNode, UnaryPlusNode,
-    BinaryOperationNode, FunctionCallNode,
+    BinaryOperationNode,
+    FunctionCallNode,
+    Node,
+    NumberNode,
+    UnaryMinusNode,
+    UnaryPlusNode,
+    VariableNode,
 )
 from computor_v2.types import Rational
+
 R = Rational
-from computor_v2.store import Store
-from computor_v2.errors import ComputorSolverError, ComputorNameError
+from computor_v2.errors import ComputorNameError, ComputorSolverError
 from computor_v2.polynomial import Polynomial
+from computor_v2.store import Store
 
 
 class Normalizer:

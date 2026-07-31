@@ -1,6 +1,6 @@
+from computor_v2.interpreter import Interpreter
 from computor_v2.parsing.parser import parser
 from computor_v2.store import Store
-from computor_v2.interpreter import Interpreter
 
 R"""
 Этот файл — для ручной отладки. Запуск:

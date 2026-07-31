@@ -1,19 +1,21 @@
+from ply import yacc
+
 from .AST import (
-    NumberNode,
-    VariableNode,
-    UnaryMinusNode,
-    UnaryPlusNode,
     BinaryOperationNode,
+    ComparisonNode,
+    Equality,
     FunctionCallNode,
     FunctionDefinitionNode,
     MatrixNode,
-    Equality,
-    ComparisonNode,
+    NumberNode,
     QueryNode,
     SolveNode,
+    UnaryMinusNode,
+    UnaryPlusNode,
+    VariableNode,
 )
-from ply import yacc
-from .lexer import tokens, lexer as _base_lexer, ImplicitMultiplyLexer  # noqa F401
+from .lexer import ImplicitMultiplyLexer, tokens  # noqa F401
+from .lexer import lexer as _base_lexer
 
 _lexer = ImplicitMultiplyLexer(_base_lexer)
 

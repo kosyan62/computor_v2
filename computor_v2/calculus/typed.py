@@ -1,6 +1,7 @@
 from __future__ import annotations
-from computor_v2.types import Rational, Complex, Irrational
+
 from computor_v2.calculus.pure import factor_sqrt
+from computor_v2.types import Complex, Irrational, Rational
 
 
 def sqrt(val: Rational) -> Rational | Complex | Irrational:

@@ -38,7 +38,7 @@ def run_repl(computor_v2: ComputorV2) -> None:
         try:
             user_input = input("> ")
         except KeyboardInterrupt:
-            print("")
+            print()
             continue
         except EOFError:
             print("\nBye!")

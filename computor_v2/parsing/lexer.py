@@ -1,4 +1,4 @@
-import ply.lex as lex
+from ply import lex
 
 tokens = (  # Operators
     "PLUS",
@@ -88,7 +88,7 @@ def t_newline(t):
 
 
 def t_error(t):
-    raise ValueError("Illegal character '%s' on position %d" % (t.value[0], t.lexpos))
+    raise ValueError(f"Illegal character '{t.value[0]}' on position {t.lexpos}")
 
 
 # Build the lexer

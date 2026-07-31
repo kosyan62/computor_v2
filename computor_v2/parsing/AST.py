@@ -222,7 +222,7 @@ class FunctionDefinitionNode(StatementNode):
         if isinstance(args, VariableNode):
             args = [args]
         elif isinstance(args, list):
-            if not all([isinstance(x, VariableNode) for x in args]):
+            if not all(isinstance(x, VariableNode) for x in args):
                 raise ValueError("Wrong arguments type in FunctionDefinitionNode")
         else:
             raise ValueError("Wrong arguments type in FunctionDefinitionNode")

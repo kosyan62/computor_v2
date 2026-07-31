@@ -7,7 +7,6 @@ import sys
 import textwrap
 from pathlib import Path
 
-
 PYTHON = sys.executable
 MODULE = "computor_v2.main"
 
@@ -17,7 +16,7 @@ def run(content: str, tmp_path: Path) -> list[str]:
     p.write_text(textwrap.dedent(content).strip() + "\n")
     result = subprocess.run(
         [PYTHON, "-m", MODULE, "-f", str(p)],
-        capture_output=True, text=True,
+        capture_output=True, text=True, check=False,
     )
     return [l for l in result.stdout.splitlines() if l.strip()]
 

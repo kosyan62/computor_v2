@@ -30,4 +30,8 @@ ignore = [
     "E701",   # match-case one-liners: intentional style
     "E402",   # module-level import not at top: R = Rational alias pattern
     "E741",   # ambiguous variable name: l used in list comprehensions
+    "BLE001", # blind except: intentional nan/free-var fallbacks in plotter, dispatcher, normalizer
+    "S110",   # try-except-pass: same fallback pattern
+    "N999",   # module name AST.py: renaming is churn across all imports
+    "TRY004", # ValueError in AST args check: caught as parse error in computorv2.add_input
 ]

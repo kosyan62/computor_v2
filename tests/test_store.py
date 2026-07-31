@@ -1,8 +1,9 @@
 import pytest
-from computor_v2.store import Store
-from computor_v2.types import Rational, Complex, BuiltinFunction, Scalar
-from computor_v2.errors import ComputorNameError, ComputorTypeError
+
 from computor_v2.builtins import BUILTINS
+from computor_v2.errors import ComputorNameError, ComputorTypeError
+from computor_v2.store import Store
+from computor_v2.types import BuiltinFunction, Complex, Rational, Scalar
 
 R = Rational
 

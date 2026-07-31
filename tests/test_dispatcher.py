@@ -1,8 +1,9 @@
 import pytest
-from computor_v2.store import Store
-from computor_v2.types import Rational, Complex, Function
+
 from computor_v2.errors import ComputorNameError, ComputorSolverError
 from computor_v2.parsing.parser import parser
+from computor_v2.store import Store
+from computor_v2.types import Complex, Function, Rational
 
 R = Rational
 

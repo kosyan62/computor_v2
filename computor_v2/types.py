@@ -1,6 +1,8 @@
 from __future__ import annotations
+
 from abc import ABC
-from computor_v2.calculus.pure import gcd, factor_sqrt
+
+from computor_v2.calculus.pure import factor_sqrt, gcd
 
 
 class Scalar(ABC):
@@ -394,7 +396,7 @@ class Irrational(Scalar):
 
     # --- helpers ---
 
-    def _check_radicand(self, other: "Irrational", op: str):
+    def _check_radicand(self, other: Irrational, op: str):
         if self.radicand != other.radicand:
             raise TypeError(
                 f"Cannot {op} irrationals with different radicands "
