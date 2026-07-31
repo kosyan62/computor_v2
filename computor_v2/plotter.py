@@ -40,7 +40,9 @@ def _float_eval(node, param: str, x: float, store: Store) -> float:
             case "-":  return left - right
             case "*":  return left * right
             case "/":  return left / right if right != 0 else float("nan")
-            case "^":  return left ** right
+            case "^":
+                res = left ** right
+                return res if isinstance(res, float) else float("nan")
             case "%":  return math.fmod(left, right) if right != 0 else float("nan")
             case "//": return math.floor(left / right) if right != 0 else float("nan")
             case "**": return float("nan")
