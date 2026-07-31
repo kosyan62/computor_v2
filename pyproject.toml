@@ -1,6 +1,7 @@
 [project]
 name = "computor-v2"
 version = "0.1.0"
+description = "Interactive math interpreter: exact rationals, complex numbers, matrices, user functions, polynomial equation solving and plotting"
 requires-python = ">=3.13"
 dependencies = [
     "coverage",
