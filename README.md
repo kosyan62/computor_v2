@@ -14,7 +14,7 @@
 - Построение графика функции: `plot f`
 - Встроенные функции: `sqrt`, `abs`, `sin`, `cos`, `tan`, `exp`
 - Команды: `vars` (список переменных), `exit`
-- Режим файла: `python -m computor_v2.main -f script.txt`
+- Режим файла: `uv run computor -f script.txt`
 - Режим отладки с логированием: `-d`
 
 ---
@@ -90,13 +90,13 @@ cd computor_v2
 uv sync
 
 # Запустить REPL
-uv run python -m computor_v2.main
+uv run computor
 
 # Файловый режим
-uv run python -m computor_v2.main -f examples/demo.txt
+uv run computor -f examples/demo.txt
 
 # Режим отладки
-uv run python -m computor_v2.main -d
+uv run computor -d
 ```
 
 ### Docker
@@ -198,10 +198,13 @@ GitHub Actions запускается при каждом push и pull request �
 
 ```
 .github/workflows/ci.yml
-  └── test (ubuntu-latest, python 3.13)
-        ├── uv sync
-        ├── pytest tests/ -v
-        └── ruff check .
+  ├── test (ubuntu-latest, python 3.13)
+  │     ├── uv sync
+  │     ├── pytest tests/ -v
+  │     └── ruff check .
+  └── build (needs: test)
+        ├── uv build          # wheel + sdist
+        └── upload-artifact   # computor-v2-dist
 ```
 
 Статус CI: [![CI](https://github.com/kosyan62/computor_v2/actions/workflows/ci.yml/badge.svg)](https://github.com/kosyan62/computor_v2/actions/workflows/ci.yml)
@@ -211,7 +214,7 @@ GitHub Actions запускается при каждом push и pull request �
 ## Режим отладки
 
 ```bash
-python -m computor_v2.main -d
+uv run computor -d
 ```
 
 В debug-режиме (`-d`) все события логируются в stdout через модуль `logging`:
