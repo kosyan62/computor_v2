@@ -21,12 +21,15 @@ class Rational(Scalar):
 
     @classmethod
     def from_str(cls, s: str) -> Rational:
+        s = s.strip()
+        sign = -1 if s.startswith("-") else 1
+        s = s.lstrip("+-")
         if "." in s:
             integer_part, decimal_part = s.split(".")
             denominator = 10 ** len(decimal_part)
-            numerator = int(integer_part) * denominator + int(decimal_part)
-            return cls(numerator, denominator)
-        return cls(int(s))
+            numerator = int(integer_part or "0") * denominator + int(decimal_part or "0")
+            return cls(sign * numerator, denominator)
+        return cls(sign * int(s))
 
     def _coerce(self, other):
         if isinstance(other, int):

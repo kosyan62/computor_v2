@@ -35,6 +35,13 @@ class TestRational:
         assert Rational.from_str("1.0") == Rational(1)
         assert Rational.from_str("3.14") == Rational(157, 50)
 
+    def test_from_str_negative(self):
+        assert Rational.from_str("-42") == Rational(-42)
+        assert Rational.from_str("-0.75") == Rational(-3, 4)
+        assert Rational.from_str("-1.88") == Rational(-47, 25)
+        assert Rational.from_str("-0.000000001") == Rational(-1, 10**9)
+        assert Rational.from_str("+0.5") == Rational(1, 2)
+
     def test_add(self):
         assert Rational(1, 2) + Rational(1, 3) == Rational(5, 6)
         assert Rational(1) + Rational(2) == Rational(3)
